@@ -1,0 +1,50 @@
+﻿
+using StackExchange.Redis;
+using CookingRecipe.Services;
+
+namespace cookingrecipe
+{
+    public class Program
+    {
+        public static void Main(string[] args)
+        {
+            var builder = WebApplication.CreateBuilder(args);
+
+            // Configure Redis connection (use ConnectionStrings:Redis or default to localhost)
+            var redisConn = builder.Configuration.GetConnectionString("Redis") ?? "localhost";
+            builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
+                ConnectionMultiplexer.Connect(redisConn));
+
+            // Register Redis-backed store for recipes and search history
+            builder.Services.AddSingleton<IRedisStore, RedisRecipeStore>();
+
+            // Register HttpClient and Spoonacular service
+            builder.Services.AddHttpClient<ISpoonacularService, SpoonacularService>();
+
+            builder.Services.AddControllers();
+            // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
+            builder.Services.AddOpenApi();
+
+            var app = builder.Build();
+
+
+            // Configure the HTTP request pipeline.
+            if (app.Environment.IsDevelopment())
+            {
+                app.MapOpenApi();
+            }
+
+            app.UseHttpsRedirection();
+
+            // ensure anonymous device id cookie is present
+            app.UseMiddleware<CookingRecipe.Middleware.DeviceIdMiddleware>();
+
+            app.UseAuthorization();
+
+
+            app.MapControllers();
+
+            app.Run();
+        }
+    }
+}

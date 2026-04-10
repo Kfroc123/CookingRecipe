@@ -1,0 +1,278 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\Hussein\\Desktop\\200L Backend Class\\CookingRecipe\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{89640605-6AC1-49A2-BC4B-D7F40EDCFCDB}|cookingrecipe\\CookingRecipe.csproj|c:\\users\\hussein\\desktop\\200l backend class\\cookingrecipe\\cookingrecipe\\entities\\nutritioninfo.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{89640605-6AC1-49A2-BC4B-D7F40EDCFCDB}|cookingrecipe\\CookingRecipe.csproj|solutionrelative:cookingrecipe\\entities\\nutritioninfo.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{89640605-6AC1-49A2-BC4B-D7F40EDCFCDB}|cookingrecipe\\CookingRecipe.csproj|c:\\users\\hussein\\desktop\\200l backend class\\cookingrecipe\\cookingrecipe\\controllers\\searchhistorycontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{89640605-6AC1-49A2-BC4B-D7F40EDCFCDB}|cookingrecipe\\CookingRecipe.csproj|solutionrelative:cookingrecipe\\controllers\\searchhistorycontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{89640605-6AC1-49A2-BC4B-D7F40EDCFCDB}|cookingrecipe\\CookingRecipe.csproj|c:\\users\\hussein\\desktop\\200l backend class\\cookingrecipe\\cookingrecipe\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
+      "RelativeMoniker": "D:0:0:{89640605-6AC1-49A2-BC4B-D7F40EDCFCDB}|cookingrecipe\\CookingRecipe.csproj|solutionrelative:cookingrecipe\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{89640605-6AC1-49A2-BC4B-D7F40EDCFCDB}|cookingrecipe\\CookingRecipe.csproj|c:\\users\\hussein\\desktop\\200l backend class\\cookingrecipe\\cookingrecipe\\services\\spoonacularservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{89640605-6AC1-49A2-BC4B-D7F40EDCFCDB}|cookingrecipe\\CookingRecipe.csproj|solutionrelative:cookingrecipe\\services\\spoonacularservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{89640605-6AC1-49A2-BC4B-D7F40EDCFCDB}|cookingrecipe\\CookingRecipe.csproj|c:\\users\\hussein\\desktop\\200l backend class\\cookingrecipe\\cookingrecipe\\services\\redisrecipestore.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{89640605-6AC1-49A2-BC4B-D7F40EDCFCDB}|cookingrecipe\\CookingRecipe.csproj|solutionrelative:cookingrecipe\\services\\redisrecipestore.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{89640605-6AC1-49A2-BC4B-D7F40EDCFCDB}|cookingrecipe\\CookingRecipe.csproj|c:\\users\\hussein\\desktop\\200l backend class\\cookingrecipe\\cookingrecipe\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{89640605-6AC1-49A2-BC4B-D7F40EDCFCDB}|cookingrecipe\\CookingRecipe.csproj|solutionrelative:cookingrecipe\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{89640605-6AC1-49A2-BC4B-D7F40EDCFCDB}|cookingrecipe\\CookingRecipe.csproj|c:\\users\\hussein\\desktop\\200l backend class\\cookingrecipe\\cookingrecipe\\conntext\\cookingrecipecontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{89640605-6AC1-49A2-BC4B-D7F40EDCFCDB}|cookingrecipe\\CookingRecipe.csproj|solutionrelative:cookingrecipe\\conntext\\cookingrecipecontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{89640605-6AC1-49A2-BC4B-D7F40EDCFCDB}|cookingrecipe\\CookingRecipe.csproj|c:\\users\\hussein\\desktop\\200l backend class\\cookingrecipe\\cookingrecipe\\entities\\recipeingredient.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{89640605-6AC1-49A2-BC4B-D7F40EDCFCDB}|cookingrecipe\\CookingRecipe.csproj|solutionrelative:cookingrecipe\\entities\\recipeingredient.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{89640605-6AC1-49A2-BC4B-D7F40EDCFCDB}|cookingrecipe\\CookingRecipe.csproj|c:\\users\\hussein\\desktop\\200l backend class\\cookingrecipe\\cookingrecipe\\entities\\ingredient.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{89640605-6AC1-49A2-BC4B-D7F40EDCFCDB}|cookingrecipe\\CookingRecipe.csproj|solutionrelative:cookingrecipe\\entities\\ingredient.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{89640605-6AC1-49A2-BC4B-D7F40EDCFCDB}|cookingrecipe\\CookingRecipe.csproj|c:\\users\\hussein\\desktop\\200l backend class\\cookingrecipe\\cookingrecipe\\entities\\recipe.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{89640605-6AC1-49A2-BC4B-D7F40EDCFCDB}|cookingrecipe\\CookingRecipe.csproj|solutionrelative:cookingrecipe\\entities\\recipe.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{89640605-6AC1-49A2-BC4B-D7F40EDCFCDB}|cookingrecipe\\CookingRecipe.csproj|c:\\users\\hussein\\desktop\\200l backend class\\cookingrecipe\\cookingrecipe\\dtos\\cookingresultdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{89640605-6AC1-49A2-BC4B-D7F40EDCFCDB}|cookingrecipe\\CookingRecipe.csproj|solutionrelative:cookingrecipe\\dtos\\cookingresultdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{89640605-6AC1-49A2-BC4B-D7F40EDCFCDB}|cookingrecipe\\CookingRecipe.csproj|c:\\users\\hussein\\desktop\\200l backend class\\cookingrecipe\\cookingrecipe\\entities\\searchhistory.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{89640605-6AC1-49A2-BC4B-D7F40EDCFCDB}|cookingrecipe\\CookingRecipe.csproj|solutionrelative:cookingrecipe\\entities\\searchhistory.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{89640605-6AC1-49A2-BC4B-D7F40EDCFCDB}|cookingrecipe\\CookingRecipe.csproj|c:\\users\\hussein\\desktop\\200l backend class\\cookingrecipe\\cookingrecipe\\middleware\\deviceidmiddleware.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{89640605-6AC1-49A2-BC4B-D7F40EDCFCDB}|cookingrecipe\\CookingRecipe.csproj|solutionrelative:cookingrecipe\\middleware\\deviceidmiddleware.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{89640605-6AC1-49A2-BC4B-D7F40EDCFCDB}|cookingrecipe\\CookingRecipe.csproj|c:\\users\\hussein\\desktop\\200l backend class\\cookingrecipe\\cookingrecipe\\dtos\\savesearchrequestdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{89640605-6AC1-49A2-BC4B-D7F40EDCFCDB}|cookingrecipe\\CookingRecipe.csproj|solutionrelative:cookingrecipe\\dtos\\savesearchrequestdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{89640605-6AC1-49A2-BC4B-D7F40EDCFCDB}|cookingrecipe\\CookingRecipe.csproj|c:\\users\\hussein\\desktop\\200l backend class\\cookingrecipe\\cookingrecipe\\cookingrecipe.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|",
+      "RelativeMoniker": "D:0:0:{89640605-6AC1-49A2-BC4B-D7F40EDCFCDB}|cookingrecipe\\CookingRecipe.csproj|solutionrelative:cookingrecipe\\cookingrecipe.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{89640605-6AC1-49A2-BC4B-D7F40EDCFCDB}|cookingrecipe\\CookingRecipe.csproj|c:\\users\\hussein\\desktop\\200l backend class\\cookingrecipe\\cookingrecipe\\controllers\\recipescontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{89640605-6AC1-49A2-BC4B-D7F40EDCFCDB}|cookingrecipe\\CookingRecipe.csproj|solutionrelative:cookingrecipe\\controllers\\recipescontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 4,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "SearchHistoryController.cs",
+              "DocumentMoniker": "C:\\Users\\Hussein\\Desktop\\200L Backend Class\\CookingRecipe\\cookingrecipe\\Controllers\\SearchHistoryController.cs",
+              "RelativeDocumentMoniker": "cookingrecipe\\Controllers\\SearchHistoryController.cs",
+              "ToolTip": "C:\\Users\\Hussein\\Desktop\\200L Backend Class\\CookingRecipe\\cookingrecipe\\Controllers\\SearchHistoryController.cs",
+              "RelativeToolTip": "cookingrecipe\\Controllers\\SearchHistoryController.cs",
+              "ViewState": "AgIAAAsAAAAAAAAAAAAAwBMAAAARAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-31T10:27:17.984Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 11,
+              "Title": "SearchHistory.cs",
+              "DocumentMoniker": "C:\\Users\\Hussein\\Desktop\\200L Backend Class\\CookingRecipe\\cookingrecipe\\Entities\\SearchHistory.cs",
+              "RelativeDocumentMoniker": "cookingrecipe\\Entities\\SearchHistory.cs",
+              "ToolTip": "C:\\Users\\Hussein\\Desktop\\200L Backend Class\\CookingRecipe\\cookingrecipe\\Entities\\SearchHistory.cs",
+              "RelativeToolTip": "cookingrecipe\\Entities\\SearchHistory.cs",
+              "ViewState": "AgIAAA0AAAAAAAAAAABRwAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-31T10:26:28.141Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "RedisRecipeStore.cs",
+              "DocumentMoniker": "C:\\Users\\Hussein\\Desktop\\200L Backend Class\\CookingRecipe\\cookingrecipe\\Services\\RedisRecipeStore.cs",
+              "RelativeDocumentMoniker": "cookingrecipe\\Services\\RedisRecipeStore.cs",
+              "ToolTip": "C:\\Users\\Hussein\\Desktop\\200L Backend Class\\CookingRecipe\\cookingrecipe\\Services\\RedisRecipeStore.cs",
+              "RelativeToolTip": "cookingrecipe\\Services\\RedisRecipeStore.cs",
+              "ViewState": "AgIAAA4AAAAAAAAAAAAYwFgAAABMAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-31T10:22:17.89Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "SpoonacularService.cs",
+              "DocumentMoniker": "C:\\Users\\Hussein\\Desktop\\200L Backend Class\\CookingRecipe\\cookingrecipe\\Services\\SpoonacularService.cs",
+              "RelativeDocumentMoniker": "cookingrecipe\\Services\\SpoonacularService.cs",
+              "ToolTip": "C:\\Users\\Hussein\\Desktop\\200L Backend Class\\CookingRecipe\\cookingrecipe\\Services\\SpoonacularService.cs",
+              "RelativeToolTip": "cookingrecipe\\Services\\SpoonacularService.cs",
+              "ViewState": "AgIAAEkAAAAAAAAAAAAuwGEAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-31T10:43:15.859Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "NutritionInfo.cs",
+              "DocumentMoniker": "C:\\Users\\Hussein\\Desktop\\200L Backend Class\\CookingRecipe\\cookingrecipe\\Entities\\NutritionInfo.cs",
+              "RelativeDocumentMoniker": "cookingrecipe\\Entities\\NutritionInfo.cs",
+              "ToolTip": "C:\\Users\\Hussein\\Desktop\\200L Backend Class\\CookingRecipe\\cookingrecipe\\Entities\\NutritionInfo.cs",
+              "RelativeToolTip": "cookingrecipe\\Entities\\NutritionInfo.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAMAAAAFAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-31T10:28:51.472Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "appsettings.json",
+              "DocumentMoniker": "C:\\Users\\Hussein\\Desktop\\200L Backend Class\\CookingRecipe\\cookingrecipe\\appsettings.json",
+              "RelativeDocumentMoniker": "cookingrecipe\\appsettings.json",
+              "ToolTip": "C:\\Users\\Hussein\\Desktop\\200L Backend Class\\CookingRecipe\\cookingrecipe\\appsettings.json",
+              "RelativeToolTip": "cookingrecipe\\appsettings.json",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAgAAAAVAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
+              "WhenOpened": "2026-03-31T12:09:00.877Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 12,
+              "Title": "DeviceIdMiddleware.cs",
+              "DocumentMoniker": "C:\\Users\\Hussein\\Desktop\\200L Backend Class\\CookingRecipe\\cookingrecipe\\Middleware\\DeviceIdMiddleware.cs",
+              "RelativeDocumentMoniker": "cookingrecipe\\Middleware\\DeviceIdMiddleware.cs",
+              "ToolTip": "C:\\Users\\Hussein\\Desktop\\200L Backend Class\\CookingRecipe\\cookingrecipe\\Middleware\\DeviceIdMiddleware.cs",
+              "RelativeToolTip": "cookingrecipe\\Middleware\\DeviceIdMiddleware.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAACMAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-31T10:27:07.216Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "Program.cs",
+              "DocumentMoniker": "C:\\Users\\Hussein\\Desktop\\200L Backend Class\\CookingRecipe\\cookingrecipe\\Program.cs",
+              "RelativeDocumentMoniker": "cookingrecipe\\Program.cs",
+              "ToolTip": "C:\\Users\\Hussein\\Desktop\\200L Backend Class\\CookingRecipe\\cookingrecipe\\Program.cs",
+              "RelativeToolTip": "cookingrecipe\\Program.cs",
+              "ViewState": "AgIAADYAAAAAAAAAAAAAADoAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-25T08:42:07.642Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 15,
+              "Title": "RecipesController.cs",
+              "DocumentMoniker": "C:\\Users\\Hussein\\Desktop\\200L Backend Class\\CookingRecipe\\cookingrecipe\\Controllers\\RecipesController.cs",
+              "RelativeDocumentMoniker": "cookingrecipe\\Controllers\\RecipesController.cs",
+              "ToolTip": "C:\\Users\\Hussein\\Desktop\\200L Backend Class\\CookingRecipe\\cookingrecipe\\Controllers\\RecipesController.cs",
+              "RelativeToolTip": "cookingrecipe\\Controllers\\RecipesController.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAGYAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-31T10:44:38.709Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 14,
+              "Title": "CookingRecipe.csproj",
+              "DocumentMoniker": "C:\\Users\\Hussein\\Desktop\\200L Backend Class\\CookingRecipe\\cookingrecipe\\CookingRecipe.csproj",
+              "RelativeDocumentMoniker": "cookingrecipe\\CookingRecipe.csproj",
+              "ToolTip": "C:\\Users\\Hussein\\Desktop\\200L Backend Class\\CookingRecipe\\cookingrecipe\\CookingRecipe.csproj",
+              "RelativeToolTip": "cookingrecipe\\CookingRecipe.csproj",
+              "ViewState": "AgIAAAsAAAAAAAAAAIBJwAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
+              "WhenOpened": "2026-03-31T10:34:17.008Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 13,
+              "Title": "SaveSearchRequestDto.cs",
+              "DocumentMoniker": "C:\\Users\\Hussein\\Desktop\\200L Backend Class\\CookingRecipe\\cookingrecipe\\Dtos\\SaveSearchRequestDto.cs",
+              "RelativeDocumentMoniker": "cookingrecipe\\Dtos\\SaveSearchRequestDto.cs",
+              "ToolTip": "C:\\Users\\Hussein\\Desktop\\200L Backend Class\\CookingRecipe\\cookingrecipe\\Dtos\\SaveSearchRequestDto.cs",
+              "RelativeToolTip": "cookingrecipe\\Dtos\\SaveSearchRequestDto.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAkAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-31T10:27:37.377Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "RecipeIngredient.cs",
+              "DocumentMoniker": "C:\\Users\\Hussein\\Desktop\\200L Backend Class\\CookingRecipe\\cookingrecipe\\Entities\\RecipeIngredient.cs",
+              "RelativeDocumentMoniker": "cookingrecipe\\Entities\\RecipeIngredient.cs",
+              "ToolTip": "C:\\Users\\Hussein\\Desktop\\200L Backend Class\\CookingRecipe\\cookingrecipe\\Entities\\RecipeIngredient.cs",
+              "RelativeToolTip": "cookingrecipe\\Entities\\RecipeIngredient.cs",
+              "ViewState": "AgIAAAkAAAAAAAAAAIBZwA4AAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-25T16:46:16.162Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "Ingredient.cs",
+              "DocumentMoniker": "C:\\Users\\Hussein\\Desktop\\200L Backend Class\\CookingRecipe\\cookingrecipe\\Entities\\Ingredient.cs",
+              "RelativeDocumentMoniker": "cookingrecipe\\Entities\\Ingredient.cs",
+              "ToolTip": "C:\\Users\\Hussein\\Desktop\\200L Backend Class\\CookingRecipe\\cookingrecipe\\Entities\\Ingredient.cs",
+              "RelativeToolTip": "cookingrecipe\\Entities\\Ingredient.cs",
+              "ViewState": "AgIAAAkAAAAAAAAAAEBVwA0AAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-25T16:45:20.701Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
+              "Title": "Recipe.cs",
+              "DocumentMoniker": "C:\\Users\\Hussein\\Desktop\\200L Backend Class\\CookingRecipe\\cookingrecipe\\Entities\\Recipe.cs",
+              "RelativeDocumentMoniker": "cookingrecipe\\Entities\\Recipe.cs",
+              "ToolTip": "C:\\Users\\Hussein\\Desktop\\200L Backend Class\\CookingRecipe\\cookingrecipe\\Entities\\Recipe.cs",
+              "RelativeToolTip": "cookingrecipe\\Entities\\Recipe.cs",
+              "ViewState": "AgIAABUAAAAAAAAAAIBZwBoAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-25T11:41:52.578Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "CookingRecipeContext.cs",
+              "DocumentMoniker": "C:\\Users\\Hussein\\Desktop\\200L Backend Class\\CookingRecipe\\cookingrecipe\\Conntext\\CookingRecipeContext.cs",
+              "RelativeDocumentMoniker": "cookingrecipe\\Conntext\\CookingRecipeContext.cs",
+              "ToolTip": "C:\\Users\\Hussein\\Desktop\\200L Backend Class\\CookingRecipe\\cookingrecipe\\Conntext\\CookingRecipeContext.cs",
+              "RelativeToolTip": "cookingrecipe\\Conntext\\CookingRecipeContext.cs",
+              "ViewState": "AgIAAAcAAAAAAAAAAAAzwAgAAAAbAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-25T11:50:16.843Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 10,
+              "Title": "CookingResultDto.cs",
+              "DocumentMoniker": "C:\\Users\\Hussein\\Desktop\\200L Backend Class\\CookingRecipe\\cookingrecipe\\Dtos\\CookingResultDto.cs",
+              "RelativeDocumentMoniker": "cookingrecipe\\Dtos\\CookingResultDto.cs",
+              "ToolTip": "C:\\Users\\Hussein\\Desktop\\200L Backend Class\\CookingRecipe\\cookingrecipe\\Dtos\\CookingResultDto.cs",
+              "RelativeToolTip": "cookingrecipe\\Dtos\\CookingResultDto.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAsAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-25T11:47:28.273Z"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
