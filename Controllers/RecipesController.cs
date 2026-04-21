@@ -4,7 +4,6 @@ using CookingRecipe.Entities;
 using CookingRecipe.Dtos;
 using System.Text.Json;
 using System.Text.RegularExpressions;
-
 namespace CookingRecipe.Controllers
 {
     [ApiController]
@@ -20,12 +19,14 @@ namespace CookingRecipe.Controllers
         };
 
         private readonly ISpoonacularService _spoon;
+        private readonly INigerianRecipeDatasetService _nigerianDataset;
         private readonly IRedisStore _store;
         private const string CookieName = "deviceId";
 
-        public RecipesController(ISpoonacularService spoon, IRedisStore store)
+        public RecipesController(ISpoonacularService spoon, INigerianRecipeDatasetService nigerianDataset, IRedisStore store)
         {
             _spoon = spoon;
+            _nigerianDataset = nigerianDataset;
             _store = store;
         }
 
@@ -34,13 +35,25 @@ namespace CookingRecipe.Controllers
         public async Task<IActionResult> Search([FromQuery] string ingredients, [FromQuery] int max = 10)
         {
             if (string.IsNullOrWhiteSpace(ingredients)) return BadRequest("ingredients required");
+
+            var parts = ParseIngredientsInput(ingredients);
+            if (parts.Length == 0) return BadRequest("Provide at least one valid ingredient.");
+
+            if (_nigerianDataset.IsNigerianQuery(parts, ingredients))
+            {
+                var nigerianResults = _nigerianDataset.Search(parts, max);
+                foreach (var recipe in nigerianResults)
+                {
+                    await _store.SaveRecipeAsync(recipe);
+                }
+                await SaveSearchHistorySafeAsync(string.Join(',', parts), "nigerian-dataset-search", nigerianResults);
+                return Ok(nigerianResults);
+            }
+
             if (!_spoon.IsConfigured)
             {
                 return StatusCode(StatusCodes.Status500InternalServerError, "Spoonacular API key is missing. Set Spoonacular:ApiKey in appsettings or user secrets.");
             }
-
-            var parts = ParseIngredientsInput(ingredients);
-            if (parts.Length == 0) return BadRequest("Provide at least one valid ingredient.");
 
             List<Recipe> list;
             try
@@ -55,6 +68,7 @@ namespace CookingRecipe.Controllers
             {
                 return StatusCode(StatusCodes.Status502BadGateway, ex.Message);
             }
+
             await SaveSearchHistorySafeAsync(string.Join(',', parts), "ingredients-search", list);
             return Ok(list);
         }
@@ -66,10 +80,6 @@ namespace CookingRecipe.Controllers
             if (request is null || request.Ingredients.Count == 0)
             {
                 return BadRequest("Provide at least one ingredient.");
-            }
-            if (!_spoon.IsConfigured)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, "Spoonacular API key is missing. Set Spoonacular:ApiKey in appsettings or user secrets.");
             }
 
             var normalized = request.Ingredients
@@ -83,6 +93,22 @@ namespace CookingRecipe.Controllers
             if (normalized.Length == 0)
             {
                 return BadRequest("Provide at least one valid ingredient.");
+            }
+
+            if (_nigerianDataset.IsNigerianQuery(normalized, string.Join(' ', request.Ingredients)))
+            {
+                var localResults = _nigerianDataset.Search(normalized, request.Max);
+                foreach (var recipe in localResults)
+                {
+                    await _store.SaveRecipeAsync(recipe);
+                }
+                await SaveSearchHistorySafeAsync(string.Join(',', normalized), "nigerian-dataset-suggest", localResults);
+                return Ok(localResults);
+            }
+
+            if (!_spoon.IsConfigured)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "Spoonacular API key is missing. Set Spoonacular:ApiKey in appsettings or user secrets.");
             }
 
             List<Recipe> enriched;
@@ -117,6 +143,14 @@ namespace CookingRecipe.Controllers
         {
             var r = await _store.GetRecipeAsync(id);
             if (r != null) return Ok(r);
+
+            var nigerian = _nigerianDataset.GetById(id);
+            if (nigerian != null)
+            {
+                await _store.SaveRecipeAsync(nigerian);
+                return Ok(nigerian);
+            }
+
             if (!_spoon.IsConfigured)
             {
                 return StatusCode(StatusCodes.Status500InternalServerError, "Spoonacular API key is missing. Set Spoonacular:ApiKey in appsettings or user secrets.");
@@ -378,7 +412,9 @@ namespace CookingRecipe.Controllers
 
         private static IEnumerable<string> SplitIngredientParts(string input)
         {
-            return input.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+            return Regex.Split(input, @"\s*(?:,|;|\+|&|\band\b)\s*", RegexOptions.IgnoreCase)
+                .Where(i => !string.IsNullOrWhiteSpace(i))
+                .Select(i => i.Trim());
         }
 
         private static string MapToProviderIngredient(string ingredient)
@@ -393,7 +429,7 @@ namespace CookingRecipe.Controllers
 
         private static string[] ParseIngredientsInput(string input)
         {
-            return Regex.Split(input, @"\s*(?:,|&|\band\b)\s*", RegexOptions.IgnoreCase)
+            return Regex.Split(input, @"\s*(?:,|;|\+|&|\band\b)\s*", RegexOptions.IgnoreCase)
                 .Where(i => !string.IsNullOrWhiteSpace(i))
                 .Select(i => i.Trim())
                 .Distinct(StringComparer.OrdinalIgnoreCase)

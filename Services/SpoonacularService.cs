@@ -11,6 +11,7 @@ namespace CookingRecipe.Services
         Task<List<Recipe>> SearchByIngredientsAsync(string ingredientsCsv, int number = 10);
         Task<List<int>> SearchRecipeIdsByIncludedIngredientsAsync(string ingredientsCsv, int number = 10);
         Task<List<int>> SearchRecipeIdsByTitleAsync(string query, int number = 10);
+        Task<List<Recipe>> SearchOpenRecipesAsync(string query, IEnumerable<string> requiredTerms, int number = 10);
         Task<Recipe?> GetRecipeDetailAsync(int id);
     }
 
@@ -204,6 +205,114 @@ namespace CookingRecipe.Services
             {
                 return null;
             }
+        }
+
+        public async Task<List<Recipe>> SearchOpenRecipesAsync(string query, IEnumerable<string> requiredTerms, int number = 10)
+        {
+            var terms = requiredTerms
+                .Where(t => !string.IsNullOrWhiteSpace(t))
+                .Select(t => t.Trim().ToLowerInvariant())
+                .Distinct()
+                .ToArray();
+
+            var candidateQueries = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            if (!string.IsNullOrWhiteSpace(query))
+            {
+                candidateQueries.Add(query.Trim());
+            }
+            foreach (var term in terms)
+            {
+                candidateQueries.Add(term);
+            }
+            if (candidateQueries.Count == 0)
+            {
+                return new List<Recipe>();
+            }
+
+            var candidates = new Dictionary<int, Recipe>();
+            foreach (var q in candidateQueries)
+            {
+                var url = $"https://www.themealdb.com/api/json/v1/1/search.php?s={Uri.EscapeDataString(q)}";
+                var res = await _http.GetAsync(url);
+                if (!res.IsSuccessStatusCode) continue;
+
+                using var stream = await res.Content.ReadAsStreamAsync();
+                var root = await JsonSerializer.DeserializeAsync<JsonElement>(stream, _json);
+                if (!root.TryGetProperty("meals", out var meals) || meals.ValueKind != JsonValueKind.Array) continue;
+
+                foreach (var meal in meals.EnumerateArray())
+                {
+                    var recipe = TryMapMealDbRecipe(meal);
+                    if (recipe == null) continue;
+                    candidates[recipe.Id] = recipe;
+                }
+            }
+
+            var filtered = candidates.Values
+                .Where(r => terms.Length == 0 || terms.All(term => MealMatchesTerm(r, term)))
+                .Take(Math.Clamp(number, 1, 50))
+                .ToList();
+
+            return filtered;
+        }
+
+        private static Recipe? TryMapMealDbRecipe(JsonElement meal)
+        {
+            if (!meal.TryGetProperty("idMeal", out var idProp)) return null;
+            var idText = idProp.GetString();
+            if (!int.TryParse(idText, out var id)) return null;
+
+            var recipe = new Recipe
+            {
+                Id = id,
+                Title = meal.TryGetProperty("strMeal", out var title) ? title.GetString() ?? string.Empty : string.Empty,
+                Summary = meal.TryGetProperty("strCategory", out var category) ? category.GetString() ?? string.Empty : string.Empty,
+                Category = meal.TryGetProperty("strCategory", out var cat) ? cat.GetString() ?? string.Empty : string.Empty,
+                Instructions = meal.TryGetProperty("strInstructions", out var instructions) ? instructions.GetString() ?? string.Empty : string.Empty,
+                ImageUrl = meal.TryGetProperty("strMealThumb", out var image) ? image.GetString() ?? string.Empty : string.Empty,
+                SourceUrl = meal.TryGetProperty("strSource", out var source) ? source.GetString() ?? string.Empty : string.Empty
+            };
+
+            var ingredients = new List<RecipeIngredient>();
+            for (var i = 1; i <= 20; i++)
+            {
+                var ingredientName = GetString(meal, $"strIngredient{i}");
+                if (string.IsNullOrWhiteSpace(ingredientName)) continue;
+
+                ingredients.Add(new RecipeIngredient
+                {
+                    Ingredient = new Ingredient { Name = ingredientName.Trim() },
+                    Quantity = GetString(meal, $"strMeasure{i}") ?? string.Empty
+                });
+            }
+            recipe.Ingredients = ingredients;
+
+            return recipe;
+        }
+
+        private static string? GetString(JsonElement element, string propertyName)
+        {
+            if (!element.TryGetProperty(propertyName, out var prop) || prop.ValueKind == JsonValueKind.Null)
+            {
+                return null;
+            }
+
+            return prop.GetString();
+        }
+
+        private static bool MealMatchesTerm(Recipe recipe, string term)
+        {
+            if (string.IsNullOrWhiteSpace(term)) return false;
+            var normalized = term.ToLowerInvariant();
+
+            if (!string.IsNullOrWhiteSpace(recipe.Title) && recipe.Title.Contains(normalized, StringComparison.OrdinalIgnoreCase))
+            {
+                return true;
+            }
+
+            return recipe.Ingredients.Any(i =>
+                !string.IsNullOrWhiteSpace(i.Ingredient?.Name) &&
+                i.Ingredient!.Name.Contains(normalized, StringComparison.OrdinalIgnoreCase));
         }
 
         private static async Task EnsureSuccessAsync(HttpResponseMessage response, string operation)

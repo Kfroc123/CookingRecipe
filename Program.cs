@@ -54,6 +54,7 @@ namespace cookingrecipe
                 {
                     UseProxy = false
                 });
+            builder.Services.AddSingleton<INigerianRecipeDatasetService, NigerianRecipeDatasetService>();
 
             builder.Services.AddControllers();
             builder.Services.AddHealthChecks();
@@ -61,14 +62,31 @@ namespace cookingrecipe
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
+            var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? Array.Empty<string>();
+
             // Add CORS policy
             builder.Services.AddCors(options =>
             {
                 options.AddPolicy("AllowReactApp",
                     policy =>
                     {
-                        policy.WithOrigins("http://localhost:5173")
-                              .AllowAnyHeader()
+                        if (builder.Environment.IsDevelopment())
+                        {
+                            // In local dev, allow any origin (including Origin: null from file://)
+                            // to avoid browser CORS failures while testing.
+                            policy.AllowAnyOrigin();
+                        }
+                        else if (allowedOrigins.Length > 0)
+                        {
+                            policy.WithOrigins(allowedOrigins);
+                        }
+                        else
+                        {
+                            // Safe default for production if no explicit origins are configured
+                            policy.WithOrigins("http://localhost:5173");
+                        }
+
+                        policy.AllowAnyHeader()
                               .AllowAnyMethod();
                     });
             });

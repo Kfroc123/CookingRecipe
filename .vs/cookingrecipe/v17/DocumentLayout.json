@@ -3,12 +3,12 @@
   "WorkspaceRootPath": "C:\\Users\\Hussein\\Desktop\\200L Backend Class\\CookingRecipe\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{D38A6A7E-7734-4A95-A57A-5A4277660DB8}|CookingRecipe.csproj|c:\\users\\hussein\\desktop\\200l backend class\\cookingrecipe\\controllers\\recipescontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{D38A6A7E-7734-4A95-A57A-5A4277660DB8}|CookingRecipe.csproj|solutionrelative:controllers\\recipescontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{D38A6A7E-7734-4A95-A57A-5A4277660DB8}|CookingRecipe.csproj|c:\\users\\hussein\\desktop\\200l backend class\\cookingrecipe\\controllers\\searchhistorycontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{D38A6A7E-7734-4A95-A57A-5A4277660DB8}|CookingRecipe.csproj|solutionrelative:controllers\\searchhistorycontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{D38A6A7E-7734-4A95-A57A-5A4277660DB8}|CookingRecipe.csproj|c:\\users\\hussein\\desktop\\200l backend class\\cookingrecipe\\controllers\\recipescontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{D38A6A7E-7734-4A95-A57A-5A4277660DB8}|CookingRecipe.csproj|solutionrelative:controllers\\recipescontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{D38A6A7E-7734-4A95-A57A-5A4277660DB8}|CookingRecipe.csproj|c:\\users\\hussein\\desktop\\200l backend class\\cookingrecipe\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -33,7 +33,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 3,
+          "SelectedChildIndex": 4,
           "Children": [
             {
               "$type": "Bookmark",
@@ -47,7 +47,7 @@
               "RelativeDocumentMoniker": "Program.cs",
               "ToolTip": "C:\\Users\\Hussein\\Desktop\\200L Backend Class\\CookingRecipe\\Program.cs",
               "RelativeToolTip": "Program.cs",
-              "ViewState": "AgIAAFkAAAAAAAAAAAAuwD4AAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAAGsAAAAAAAAAAAAuwD8AAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-04-18T16:35:36.142Z",
               "EditorCaption": ""
@@ -60,33 +60,33 @@
               "RelativeDocumentMoniker": "appsettings.json",
               "ToolTip": "C:\\Users\\Hussein\\Desktop\\200L Backend Class\\CookingRecipe\\appsettings.json",
               "RelativeToolTip": "appsettings.json",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAYAAAAGAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA8AAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
               "WhenOpened": "2026-04-18T16:06:09.389Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 1,
               "Title": "RecipesController.cs",
               "DocumentMoniker": "C:\\Users\\Hussein\\Desktop\\200L Backend Class\\CookingRecipe\\Controllers\\RecipesController.cs",
               "RelativeDocumentMoniker": "Controllers\\RecipesController.cs",
               "ToolTip": "C:\\Users\\Hussein\\Desktop\\200L Backend Class\\CookingRecipe\\Controllers\\RecipesController.cs",
               "RelativeToolTip": "Controllers\\RecipesController.cs",
-              "ViewState": "AgIAAFAAAAAAAAAAAAAgwFcAAAAiAAAAAAAAAA==",
+              "ViewState": "AgIAAFoAAAAAAAAAAAAgwHIAAAAPAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-04-15T09:53:16.575Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 0,
               "Title": "SearchHistoryController.cs",
               "DocumentMoniker": "C:\\Users\\Hussein\\Desktop\\200L Backend Class\\CookingRecipe\\Controllers\\SearchHistoryController.cs",
               "RelativeDocumentMoniker": "Controllers\\SearchHistoryController.cs",
               "ToolTip": "C:\\Users\\Hussein\\Desktop\\200L Backend Class\\CookingRecipe\\Controllers\\SearchHistoryController.cs",
               "RelativeToolTip": "Controllers\\SearchHistoryController.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAABAAAAAAAAAAAAAQwAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-04-15T11:12:11.473Z",
               "EditorCaption": ""

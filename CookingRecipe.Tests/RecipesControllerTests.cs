@@ -12,7 +12,7 @@ public class RecipesControllerTests
     [Fact]
     public async Task Search_WhenSpoonacularNotConfigured_Returns500()
     {
-        var controller = new RecipesController(new FakeSpoonacularService(), new InMemoryRecipeStore())
+        var controller = new RecipesController(new FakeSpoonacularService(), new NigerianRecipeDatasetService(), new InMemoryRecipeStore())
         {
             ControllerContext = new ControllerContext
             {
@@ -29,7 +29,7 @@ public class RecipesControllerTests
     [Fact]
     public async Task SuggestByIngredients_WhenBodyIsEmpty_ReturnsBadRequest()
     {
-        var controller = new RecipesController(new FakeSpoonacularService(), new InMemoryRecipeStore())
+        var controller = new RecipesController(new FakeSpoonacularService(), new NigerianRecipeDatasetService(), new InMemoryRecipeStore())
         {
             ControllerContext = new ControllerContext
             {
@@ -40,6 +40,25 @@ public class RecipesControllerTests
         var result = await controller.SuggestByIngredients(new IngredientSuggestionRequestDto());
 
         Assert.IsType<BadRequestObjectResult>(result);
+    }
+
+    [Fact]
+    public async Task Search_NigerianMeal_WhenSpoonacularNotConfigured_ReturnsDatasetResults()
+    {
+        var controller = new RecipesController(new FakeSpoonacularService(), new NigerianRecipeDatasetService(), new InMemoryRecipeStore())
+        {
+            ControllerContext = new ControllerContext
+            {
+                HttpContext = new DefaultHttpContext()
+            }
+        };
+
+        var result = await controller.Search("jollof", 10);
+
+        var ok = Assert.IsType<OkObjectResult>(result);
+        var recipes = Assert.IsType<List<Recipe>>(ok.Value);
+        Assert.NotEmpty(recipes);
+        Assert.Contains(recipes, r => r.Title.Contains("Jollof", StringComparison.OrdinalIgnoreCase));
     }
 
     private sealed class FakeSpoonacularService : ISpoonacularService
@@ -56,5 +75,8 @@ public class RecipesControllerTests
 
         public Task<List<int>> SearchRecipeIdsByTitleAsync(string query, int number = 10) =>
             Task.FromResult(new List<int>());
+
+        public Task<List<Recipe>> SearchOpenRecipesAsync(string query, IEnumerable<string> requiredTerms, int number = 10) =>
+            Task.FromResult(new List<Recipe>());
     }
 }
