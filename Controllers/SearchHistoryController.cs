@@ -28,10 +28,14 @@ namespace CookingRecipe.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> SaveSearch([FromBody] SaveSearchRequestDto request)
+        public async Task<IActionResult> SaveSearch([FromBody] SaveSearchRequestDto? request)
         {
             var deviceId = GetOrCreateDeviceId();
             if (string.IsNullOrEmpty(deviceId)) return BadRequest();
+            if (request is null)
+            {
+                return BadRequest("Request body is required.");
+            }
 
             var history = new SearchHistory
             {

@@ -10,7 +10,7 @@ namespace CookingRecipe.Tests;
 public class RecipesControllerTests
 {
     [Fact]
-    public async Task Search_WhenSpoonacularNotConfigured_Returns500()
+    public async Task Search_WhenSpoonacularNotConfiguredAndNoLocalMatch_Returns500()
     {
         var controller = new RecipesController(new FakeSpoonacularService(), new NigerianRecipeDatasetService(), new InMemoryRecipeStore())
         {
@@ -20,7 +20,7 @@ public class RecipesControllerTests
             }
         };
 
-        var result = await controller.Search("rice", 10);
+        var result = await controller.Search("avocado", 10);
 
         var objectResult = Assert.IsType<ObjectResult>(result);
         Assert.Equal(StatusCodes.Status500InternalServerError, objectResult.StatusCode);
@@ -59,6 +59,44 @@ public class RecipesControllerTests
         var recipes = Assert.IsType<List<Recipe>>(ok.Value);
         Assert.NotEmpty(recipes);
         Assert.Contains(recipes, r => r.Title.Contains("Jollof", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
+    public async Task Search_RiceAndTomato_PrioritizesNigerianMatches()
+    {
+        var controller = new RecipesController(new FakeSpoonacularService(), new NigerianRecipeDatasetService(), new InMemoryRecipeStore())
+        {
+            ControllerContext = new ControllerContext
+            {
+                HttpContext = new DefaultHttpContext()
+            }
+        };
+
+        var result = await controller.Search("rice, tomato", 10);
+
+        var ok = Assert.IsType<OkObjectResult>(result);
+        var recipes = Assert.IsType<List<Recipe>>(ok.Value);
+        Assert.NotEmpty(recipes);
+        Assert.Contains(recipes, r => r.Title.Contains("Jollof", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
+    public async Task Search_BeansMaggiTomato_ReturnsMoiMoiCandidate()
+    {
+        var controller = new RecipesController(new FakeSpoonacularService(), new NigerianRecipeDatasetService(), new InMemoryRecipeStore())
+        {
+            ControllerContext = new ControllerContext
+            {
+                HttpContext = new DefaultHttpContext()
+            }
+        };
+
+        var result = await controller.Search("beans, maggi, tomato", 10);
+
+        var ok = Assert.IsType<OkObjectResult>(result);
+        var recipes = Assert.IsType<List<Recipe>>(ok.Value);
+        Assert.NotEmpty(recipes);
+        Assert.Contains(recipes, r => r.Title.Contains("Moi Moi", StringComparison.OrdinalIgnoreCase));
     }
 
     private sealed class FakeSpoonacularService : ISpoonacularService

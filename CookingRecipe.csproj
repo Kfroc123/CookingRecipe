@@ -21,4 +21,10 @@
     <EmbeddedResource Remove="CookingRecipe.Tests\**\*" />
     <None Remove="CookingRecipe.Tests\**\*" />
   </ItemGroup>
+
+  <ItemGroup>
+    <Content Update="Data\nigerian_recipes.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
 </Project>

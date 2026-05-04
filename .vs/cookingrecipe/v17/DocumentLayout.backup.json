@@ -3,27 +3,10 @@
   "WorkspaceRootPath": "C:\\Users\\Hussein\\Desktop\\200L Backend Class\\CookingRecipe\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{D38A6A7E-7734-4A95-A57A-5A4277660DB8}|CookingRecipe.csproj|c:\\users\\hussein\\desktop\\200l backend class\\cookingrecipe\\controllers\\searchhistorycontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{D38A6A7E-7734-4A95-A57A-5A4277660DB8}|CookingRecipe.csproj|solutionrelative:controllers\\searchhistorycontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Hussein\\AppData\\Local\\Temp\\7aafaf29-9c47-4566-8826-ce6892537738_portfolio-main.zip.portfolio-main.zip\\portfolio-main\\.vscode\\settings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{D38A6A7E-7734-4A95-A57A-5A4277660DB8}|CookingRecipe.csproj|c:\\users\\hussein\\desktop\\200l backend class\\cookingrecipe\\controllers\\recipescontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{D38A6A7E-7734-4A95-A57A-5A4277660DB8}|CookingRecipe.csproj|solutionrelative:controllers\\recipescontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{D38A6A7E-7734-4A95-A57A-5A4277660DB8}|CookingRecipe.csproj|c:\\users\\hussein\\desktop\\200l backend class\\cookingrecipe\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{D38A6A7E-7734-4A95-A57A-5A4277660DB8}|CookingRecipe.csproj|solutionrelative:program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{D38A6A7E-7734-4A95-A57A-5A4277660DB8}|CookingRecipe.csproj|c:\\users\\hussein\\desktop\\200l backend class\\cookingrecipe\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
-      "RelativeMoniker": "D:0:0:{D38A6A7E-7734-4A95-A57A-5A4277660DB8}|CookingRecipe.csproj|solutionrelative:appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{D38A6A7E-7734-4A95-A57A-5A4277660DB8}|CookingRecipe.csproj|c:\\users\\hussein\\desktop\\200l backend class\\cookingrecipe\\dtos\\cookingresultdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{D38A6A7E-7734-4A95-A57A-5A4277660DB8}|CookingRecipe.csproj|solutionrelative:dtos\\cookingresultdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\MSBuild\\Microsoft\\NuGet\\17.0\\Microsoft.NuGet.targets||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|"
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Hussein\\AppData\\Local\\Temp\\91e1ecba-be79-41ca-99ec-701232f4657f_portfolio-main.zip.portfolio-main.zip\\portfolio-main\\.vscode\\settings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
     }
   ],
   "DocumentGroupContainers": [
@@ -33,87 +16,36 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 4,
+          "SelectedChildIndex": 0,
           "Children": [
             {
-              "$type": "Bookmark",
-              "Name": "ST:0:0:{56df62a4-05a3-4e5b-aa1a-99371ccfb997}"
-            },
-            {
               "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "Program.cs",
-              "DocumentMoniker": "C:\\Users\\Hussein\\Desktop\\200L Backend Class\\CookingRecipe\\Program.cs",
-              "RelativeDocumentMoniker": "Program.cs",
-              "ToolTip": "C:\\Users\\Hussein\\Desktop\\200L Backend Class\\CookingRecipe\\Program.cs",
-              "RelativeToolTip": "Program.cs",
-              "ViewState": "AgIAAGsAAAAAAAAAAAAuwD8AAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-18T16:35:36.142Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 3,
-              "Title": "appsettings.json",
-              "DocumentMoniker": "C:\\Users\\Hussein\\Desktop\\200L Backend Class\\CookingRecipe\\appsettings.json",
-              "RelativeDocumentMoniker": "appsettings.json",
-              "ToolTip": "C:\\Users\\Hussein\\Desktop\\200L Backend Class\\CookingRecipe\\appsettings.json",
-              "RelativeToolTip": "appsettings.json",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA8AAAAAAAAAAAAAAA==",
+              "DocumentIndex": 0,
+              "Title": "settings.json",
+              "DocumentMoniker": "C:\\Users\\Hussein\\AppData\\Local\\Temp\\7aafaf29-9c47-4566-8826-ce6892537738_portfolio-main.zip.portfolio-main.zip\\portfolio-main\\.vscode\\settings.json",
+              "RelativeDocumentMoniker": "..\\..\\..\\AppData\\Local\\Temp\\7aafaf29-9c47-4566-8826-ce6892537738_portfolio-main.zip.portfolio-main.zip\\portfolio-main\\.vscode\\settings.json",
+              "ToolTip": "C:\\Users\\Hussein\\AppData\\Local\\Temp\\7aafaf29-9c47-4566-8826-ce6892537738_portfolio-main.zip.portfolio-main.zip\\portfolio-main\\.vscode\\settings.json [Read Only]",
+              "RelativeToolTip": "..\\..\\..\\AppData\\Local\\Temp\\7aafaf29-9c47-4566-8826-ce6892537738_portfolio-main.zip.portfolio-main.zip\\portfolio-main\\.vscode\\settings.json [Read Only]",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
-              "WhenOpened": "2026-04-18T16:06:09.389Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-05-04T15:37:07.205Z",
+              "EditorCaption": " [Read Only]"
             },
             {
               "$type": "Document",
               "DocumentIndex": 1,
-              "Title": "RecipesController.cs",
-              "DocumentMoniker": "C:\\Users\\Hussein\\Desktop\\200L Backend Class\\CookingRecipe\\Controllers\\RecipesController.cs",
-              "RelativeDocumentMoniker": "Controllers\\RecipesController.cs",
-              "ToolTip": "C:\\Users\\Hussein\\Desktop\\200L Backend Class\\CookingRecipe\\Controllers\\RecipesController.cs",
-              "RelativeToolTip": "Controllers\\RecipesController.cs",
-              "ViewState": "AgIAAFoAAAAAAAAAAAAgwHIAAAAPAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-15T09:53:16.575Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": "SearchHistoryController.cs",
-              "DocumentMoniker": "C:\\Users\\Hussein\\Desktop\\200L Backend Class\\CookingRecipe\\Controllers\\SearchHistoryController.cs",
-              "RelativeDocumentMoniker": "Controllers\\SearchHistoryController.cs",
-              "ToolTip": "C:\\Users\\Hussein\\Desktop\\200L Backend Class\\CookingRecipe\\Controllers\\SearchHistoryController.cs",
-              "RelativeToolTip": "Controllers\\SearchHistoryController.cs",
-              "ViewState": "AgIAABAAAAAAAAAAAAAQwAAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-15T11:12:11.473Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 5,
-              "Title": "Microsoft.NuGet.targets",
-              "DocumentMoniker": "C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\MSBuild\\Microsoft\\NuGet\\17.0\\Microsoft.NuGet.targets",
-              "RelativeDocumentMoniker": "..\\..\\..\\..\\..\\Program Files\\Microsoft Visual Studio\\2022\\Community\\MSBuild\\Microsoft\\NuGet\\17.0\\Microsoft.NuGet.targets",
-              "ToolTip": "C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\MSBuild\\Microsoft\\NuGet\\17.0\\Microsoft.NuGet.targets",
-              "RelativeToolTip": "..\\..\\..\\..\\..\\Program Files\\Microsoft Visual Studio\\2022\\Community\\MSBuild\\Microsoft\\NuGet\\17.0\\Microsoft.NuGet.targets",
-              "ViewState": "AgIAAK4AAAAAAAAAAAAwwMUAAABSAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003801|",
-              "WhenOpened": "2026-04-14T12:20:28.727Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 4,
-              "Title": "CookingResultDto.cs",
-              "DocumentMoniker": "C:\\Users\\Hussein\\Desktop\\200L Backend Class\\CookingRecipe\\Dtos\\CookingResultDto.cs",
-              "RelativeDocumentMoniker": "Dtos\\CookingResultDto.cs",
-              "ToolTip": "C:\\Users\\Hussein\\Desktop\\200L Backend Class\\CookingRecipe\\Dtos\\CookingResultDto.cs",
-              "RelativeToolTip": "Dtos\\CookingResultDto.cs",
+              "Title": "settings.json",
+              "DocumentMoniker": "C:\\Users\\Hussein\\AppData\\Local\\Temp\\91e1ecba-be79-41ca-99ec-701232f4657f_portfolio-main.zip.portfolio-main.zip\\portfolio-main\\.vscode\\settings.json",
+              "RelativeDocumentMoniker": "..\\..\\..\\AppData\\Local\\Temp\\91e1ecba-be79-41ca-99ec-701232f4657f_portfolio-main.zip.portfolio-main.zip\\portfolio-main\\.vscode\\settings.json",
+              "ToolTip": "C:\\Users\\Hussein\\AppData\\Local\\Temp\\91e1ecba-be79-41ca-99ec-701232f4657f_portfolio-main.zip.portfolio-main.zip\\portfolio-main\\.vscode\\settings.json [Read Only]",
+              "RelativeToolTip": "..\\..\\..\\AppData\\Local\\Temp\\91e1ecba-be79-41ca-99ec-701232f4657f_portfolio-main.zip.portfolio-main.zip\\portfolio-main\\.vscode\\settings.json [Read Only]",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-14T12:17:20.286Z"
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
+              "WhenOpened": "2026-05-04T15:36:48.646Z",
+              "EditorCaption": " [Read Only]"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{56df62a4-05a3-4e5b-aa1a-99371ccfb997}"
             }
           ]
         }

@@ -11,6 +11,10 @@ namespace cookingrecipe
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+            builder.Logging.ClearProviders();
+            builder.Logging.AddConsole();
+            builder.Logging.AddDebug();
+
             var defaultConnection = builder.Configuration.GetConnectionString("DefaultConnection")
                 ?? "Data Source=cookingrecipe.db";
 
@@ -72,9 +76,8 @@ namespace cookingrecipe
                     {
                         if (builder.Environment.IsDevelopment())
                         {
-                            // In local dev, allow any origin (including Origin: null from file://)
-                            // to avoid browser CORS failures while testing.
-                            policy.AllowAnyOrigin();
+                            policy.WithOrigins("http://localhost:5173", "http://127.0.0.1:5173")
+                                  .AllowCredentials();
                         }
                         else if (allowedOrigins.Length > 0)
                         {
@@ -122,6 +125,9 @@ namespace cookingrecipe
 
             // ensure anonymous device id cookie is present
             app.UseMiddleware<CookingRecipe.Middleware.DeviceIdMiddleware>();
+
+            // Serve local files from wwwroot (e.g., /images/*.jpg).
+            app.UseStaticFiles();
 
             app.UseAuthorization();
 

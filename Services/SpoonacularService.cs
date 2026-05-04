@@ -17,6 +17,7 @@ namespace CookingRecipe.Services
 
     public class SpoonacularService : ISpoonacularService
     {
+        private const string DefaultFoodImage = "https://images.unsplash.com/photo-1498837167922-ddd27525d352?auto=format&fit=crop&w=1200&q=80";
         private readonly HttpClient _http;
         private readonly string _apiKey;
         private readonly JsonSerializerOptions _json = new() { PropertyNameCaseInsensitive = true };
@@ -78,7 +79,7 @@ namespace CookingRecipe.Services
                     {
                         Id = id,
                         Title = title,
-                        ImageUrl = image,
+                        ImageUrl = EnsureImageUrl(image),
                         Ingredients = ingredients
                     };
 
@@ -159,7 +160,7 @@ namespace CookingRecipe.Services
                 var recipe = new Recipe();
                 recipe.Id = el.GetProperty("id").GetInt32();
                 recipe.Title = el.GetProperty("title").GetString() ?? string.Empty;
-                recipe.ImageUrl = el.GetProperty("image").GetString() ?? string.Empty;
+                recipe.ImageUrl = EnsureImageUrl(el.GetProperty("image").GetString());
                 recipe.Summary = el.GetProperty("summary").GetString() ?? string.Empty;
 
                 if (el.TryGetProperty("extendedIngredients", out var ext))
@@ -269,7 +270,7 @@ namespace CookingRecipe.Services
                 Summary = meal.TryGetProperty("strCategory", out var category) ? category.GetString() ?? string.Empty : string.Empty,
                 Category = meal.TryGetProperty("strCategory", out var cat) ? cat.GetString() ?? string.Empty : string.Empty,
                 Instructions = meal.TryGetProperty("strInstructions", out var instructions) ? instructions.GetString() ?? string.Empty : string.Empty,
-                ImageUrl = meal.TryGetProperty("strMealThumb", out var image) ? image.GetString() ?? string.Empty : string.Empty,
+                ImageUrl = EnsureImageUrl(meal.TryGetProperty("strMealThumb", out var image) ? image.GetString() ?? string.Empty : string.Empty),
                 SourceUrl = meal.TryGetProperty("strSource", out var source) ? source.GetString() ?? string.Empty : string.Empty
             };
 
@@ -313,6 +314,11 @@ namespace CookingRecipe.Services
             return recipe.Ingredients.Any(i =>
                 !string.IsNullOrWhiteSpace(i.Ingredient?.Name) &&
                 i.Ingredient!.Name.Contains(normalized, StringComparison.OrdinalIgnoreCase));
+        }
+
+        private static string EnsureImageUrl(string? imageUrl)
+        {
+            return string.IsNullOrWhiteSpace(imageUrl) ? DefaultFoodImage : imageUrl;
         }
 
         private static async Task EnsureSuccessAsync(HttpResponseMessage response, string operation)

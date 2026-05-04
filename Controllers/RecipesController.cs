@@ -10,6 +10,10 @@ namespace CookingRecipe.Controllers
     [Route("api/[controller]")]
     public class RecipesController : ControllerBase
     {
+        private const string DefaultFoodImage = "https://images.unsplash.com/photo-1498837167922-ddd27525d352?auto=format&fit=crop&w=1200&q=80";
+        private static readonly Regex ExcludedTitlePattern = new(
+            @"^(festival|festeval|village pot|sunday(?:\s+special)?|signature|smoky)\b|\b(?:rice|yam|plantain|beans|spaghetti|potato)\s+pepper\s+mix\b|\bofensala\s+catfish\b|\b(lagos|abuja|port harcourt|ibadan|enugu|kano|benin)\s+style\b|\b(chef style|market style|home style|family pot)\b",
+            RegexOptions.IgnoreCase | RegexOptions.Compiled);
         private static readonly Dictionary<string, string[]> IngredientAliases = new(StringComparer.OrdinalIgnoreCase)
         {
             ["maggi"] = ["bouillon cube", "stock cube", "seasoning cube", "bouillon"],
@@ -39,30 +43,55 @@ namespace CookingRecipe.Controllers
             var parts = ParseIngredientsInput(ingredients);
             if (parts.Length == 0) return BadRequest("Provide at least one valid ingredient.");
 
-            if (_nigerianDataset.IsNigerianQuery(parts, ingredients))
+            var sanitizedMax = Math.Clamp(max, 1, 50);
+            var prioritizedNigerian = FilterDisallowedRecipeTitles(_nigerianDataset.SearchByIngredientsPriority(parts, sanitizedMax));
+            var explicitNigerianIntent = _nigerianDataset.IsNigerianQuery(parts, ingredients);
+
+            if (prioritizedNigerian.Count > 0 && (!_spoon.IsConfigured || explicitNigerianIntent || prioritizedNigerian.Count >= sanitizedMax))
             {
-                var nigerianResults = _nigerianDataset.Search(parts, max);
-                foreach (var recipe in nigerianResults)
+                EnsureRecipeImages(prioritizedNigerian);
+                foreach (var recipe in prioritizedNigerian)
                 {
                     await _store.SaveRecipeAsync(recipe);
                 }
-                await SaveSearchHistorySafeAsync(string.Join(',', parts), "nigerian-dataset-search", nigerianResults);
-                return Ok(nigerianResults);
+                await SaveSearchHistorySafeAsync(string.Join(',', parts), "nigerian-priority-search", prioritizedNigerian);
+                return Ok(prioritizedNigerian);
             }
 
             if (!_spoon.IsConfigured)
             {
+                if (prioritizedNigerian.Count > 0)
+                {
+                    EnsureRecipeImages(prioritizedNigerian);
+                    foreach (var recipe in prioritizedNigerian)
+                    {
+                        await _store.SaveRecipeAsync(recipe);
+                    }
+                    await SaveSearchHistorySafeAsync(string.Join(',', parts), "nigerian-priority-search", prioritizedNigerian);
+                    return Ok(prioritizedNigerian);
+                }
+
                 return StatusCode(StatusCodes.Status500InternalServerError, "Spoonacular API key is missing. Set Spoonacular:ApiKey in appsettings or user secrets.");
             }
 
             List<Recipe> list;
             try
             {
-                list = await GetStrictSuggestionsAsync(parts, max);
-                if (list.Count == 0)
+                list = await GetStrictSuggestionsAsync(parts, sanitizedMax);
+                // Only fall back to title search for single-term queries.
+                // Multi-ingredient queries should remain strict ingredient matches.
+                if (list.Count == 0 && parts.Length == 1)
                 {
-                    list = await GetNameFallbackSuggestionsAsync(ingredients, max);
+                    list = await GetNameFallbackSuggestionsAsync(ingredients, sanitizedMax);
                 }
+
+                if (prioritizedNigerian.Count > 0)
+                {
+                    list = PrioritizeLocalRecipes(prioritizedNigerian, list, sanitizedMax);
+                }
+
+                list = FilterDisallowedRecipeTitles(list);
+                EnsureRecipeImages(list);
             }
             catch (HttpRequestException ex)
             {
@@ -95,26 +124,47 @@ namespace CookingRecipe.Controllers
                 return BadRequest("Provide at least one valid ingredient.");
             }
 
-            if (_nigerianDataset.IsNigerianQuery(normalized, string.Join(' ', request.Ingredients)))
+            var sanitizedMax = Math.Clamp(request.Max, 1, 50);
+            var localResults = FilterDisallowedRecipeTitles(_nigerianDataset.SearchByIngredientsPriority(normalized, sanitizedMax));
+            var explicitNigerianIntent = _nigerianDataset.IsNigerianQuery(normalized, string.Join(' ', request.Ingredients));
+
+            if (localResults.Count > 0 && (!_spoon.IsConfigured || explicitNigerianIntent || localResults.Count >= sanitizedMax))
             {
-                var localResults = _nigerianDataset.Search(normalized, request.Max);
+                EnsureRecipeImages(localResults);
                 foreach (var recipe in localResults)
                 {
                     await _store.SaveRecipeAsync(recipe);
                 }
-                await SaveSearchHistorySafeAsync(string.Join(',', normalized), "nigerian-dataset-suggest", localResults);
+                await SaveSearchHistorySafeAsync(string.Join(',', normalized), "nigerian-priority-suggest", localResults);
                 return Ok(localResults);
             }
 
             if (!_spoon.IsConfigured)
             {
+                if (localResults.Count > 0)
+                {
+                    EnsureRecipeImages(localResults);
+                    foreach (var recipe in localResults)
+                    {
+                        await _store.SaveRecipeAsync(recipe);
+                    }
+                    await SaveSearchHistorySafeAsync(string.Join(',', normalized), "nigerian-priority-suggest", localResults);
+                    return Ok(localResults);
+                }
+
                 return StatusCode(StatusCodes.Status500InternalServerError, "Spoonacular API key is missing. Set Spoonacular:ApiKey in appsettings or user secrets.");
             }
 
             List<Recipe> enriched;
             try
             {
-                enriched = await GetStrictSuggestionsAsync(normalized, request.Max);
+                enriched = await GetStrictSuggestionsAsync(normalized, sanitizedMax);
+                if (localResults.Count > 0)
+                {
+                    enriched = PrioritizeLocalRecipes(localResults, enriched, sanitizedMax);
+                }
+                enriched = FilterDisallowedRecipeTitles(enriched);
+                EnsureRecipeImages(enriched);
             }
             catch (HttpRequestException ex)
             {
@@ -130,10 +180,23 @@ namespace CookingRecipe.Controllers
             return Ok(enriched);
         }
 
-        [HttpGet]
-        public async Task<IActionResult> GetAll()
+        private static List<Recipe> PrioritizeLocalRecipes(List<Recipe> localResults, List<Recipe> remoteResults, int max)
         {
-            var recipes = await _store.SearchStoredRecipesAsync(Array.Empty<string>(), 50);
+            var merged = localResults
+                .Concat(remoteResults)
+                .GroupBy(r => r.Id)
+                .Select(g => g.First())
+                .Take(Math.Clamp(max, 1, 50))
+                .ToList();
+
+            return merged;
+        }
+
+        [HttpGet]
+        public IActionResult GetAll()
+        {
+            var recipes = FilterDisallowedRecipeTitles(_nigerianDataset.Search(Array.Empty<string>(), 50));
+            EnsureRecipeImages(recipes);
             return Ok(recipes);
         }
 
@@ -141,14 +204,33 @@ namespace CookingRecipe.Controllers
         [HttpGet("{id:int}")]
         public async Task<IActionResult> Get(int id)
         {
-            var r = await _store.GetRecipeAsync(id);
-            if (r != null) return Ok(r);
-
             var nigerian = _nigerianDataset.GetById(id);
             if (nigerian != null)
             {
-                await _store.SaveRecipeAsync(nigerian);
+                if (IsDisallowedTitle(nigerian.Title))
+                {
+                    return NotFound();
+                }
+                EnsureRecipeImage(nigerian);
+                try
+                {
+                    await _store.SaveRecipeAsync(nigerian);
+                }
+                catch
+                {
+                    // ignore cache failures
+                }
                 return Ok(nigerian);
+            }
+
+            var r = await _store.GetRecipeAsync(id);
+            if (r != null)
+            {
+                if (IsDisallowedTitle(r.Title))
+                {
+                    return NotFound();
+                }
+                return Ok(r);
             }
 
             if (!_spoon.IsConfigured)
@@ -156,9 +238,18 @@ namespace CookingRecipe.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, "Spoonacular API key is missing. Set Spoonacular:ApiKey in appsettings or user secrets.");
             }
 
-            r = await _spoon.GetRecipeDetailAsync(id);
+            try
+            {
+                r = await _spoon.GetRecipeDetailAsync(id);
+            }
+            catch (HttpRequestException ex)
+            {
+                return StatusCode(StatusCodes.Status502BadGateway, ex.Message);
+            }
 
             if (r == null) return NotFound();
+            if (IsDisallowedTitle(r.Title)) return NotFound();
+            EnsureRecipeImage(r);
 
             await _store.SaveRecipeAsync(r);
             return Ok(r);
@@ -184,7 +275,8 @@ namespace CookingRecipe.Controllers
         public async Task<IActionResult> GetFavorites()
         {
             var deviceId = GetOrCreateDeviceId();
-            var list = await _store.GetFavoritesAsync(deviceId);
+            var list = FilterDisallowedRecipeTitles(await _store.GetFavoritesAsync(deviceId));
+            EnsureRecipeImages(list);
             return Ok(list);
         }
 
@@ -193,7 +285,8 @@ namespace CookingRecipe.Controllers
         {
             if (string.IsNullOrWhiteSpace(ingredients)) return BadRequest("ingredients required");
             var parts = ingredients.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
-            var list = await _store.SearchStoredRecipesAsync(parts, max);
+            var list = FilterDisallowedRecipeTitles(await _store.SearchStoredRecipesAsync(parts, max));
+            EnsureRecipeImages(list);
             return Ok(list);
         }
 
@@ -451,6 +544,34 @@ namespace CookingRecipe.Controllers
             }
 
             return variants;
+        }
+
+        private static void EnsureRecipeImage(Recipe recipe)
+        {
+            if (string.IsNullOrWhiteSpace(recipe.ImageUrl))
+            {
+                recipe.ImageUrl = DefaultFoodImage;
+            }
+        }
+
+        private static void EnsureRecipeImages(IEnumerable<Recipe> recipes)
+        {
+            foreach (var recipe in recipes)
+            {
+                EnsureRecipeImage(recipe);
+            }
+        }
+
+        private static bool IsDisallowedTitle(string? title)
+        {
+            return !string.IsNullOrWhiteSpace(title) && ExcludedTitlePattern.IsMatch(title);
+        }
+
+        private static List<Recipe> FilterDisallowedRecipeTitles(IEnumerable<Recipe> recipes)
+        {
+            return recipes
+                .Where(r => !IsDisallowedTitle(r.Title))
+                .ToList();
         }
     }
 }
