@@ -55,6 +55,31 @@ Notes:
 - `Spoonacular:ApiKey` is required for live provider endpoints.
 - Redis is optional; if not configured, the app falls back to in-memory storage.
 
+## Deploy API on Render
+
+Deploy the backend as a Render Web Service using the Docker runtime. The Dockerfile binds to Render's `PORT` value and starts `CookingRecipe.dll`.
+
+Set these environment variables in Render:
+
+```text
+ASPNETCORE_ENVIRONMENT=Production
+Spoonacular__ApiKey=YOUR_SPOONACULAR_KEY
+ConnectionStrings__Redis=redis://username:password@host:port
+Cors__AllowedOrigins__0=https://your-frontend-domain
+```
+
+Redis is optional, but without it favorites and search history use temporary in-memory storage. SQLite also needs persistent storage if you want database data to survive restarts. Add a Render disk mounted at `/var/data`, then set:
+
+```text
+ConnectionStrings__DefaultConnection=Data Source=/var/data/cookingrecipe.db
+```
+
+If you deploy the React frontend separately, set:
+
+```text
+VITE_API_BASE_URL=https://your-api-service.onrender.com
+```
+
 ## API Endpoints
 
 `Recipes`

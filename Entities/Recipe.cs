@@ -4,10 +4,10 @@
     {
         public int Id { get; set; }
         public string Title { get; set; } = string.Empty;
-        // Short summary or description of the recipe
+       
         public string Summary { get; set; } = string.Empty;
 
-        // Ingredients as relation to normalized Ingredient entities
+        
         public List<RecipeIngredient> Ingredients { get; set; } = new();
 
         // Full instructions / steps
@@ -16,7 +16,7 @@
         public string Category { get; set; } = string.Empty;
         public string ImageUrl { get; set; } = string.Empty;
 
-        // Optional metadata commonly returned by recipe APIs
+       
         public int ReadyInMinutes { get; set; }
         public int Servings { get; set; }
         public string SourceUrl { get; set; } = string.Empty;

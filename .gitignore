@@ -1,6 +1,9 @@
 # Build outputs
 bin/
 obj/
+temp_build/
+build-verify/
+.tmp-msbuild*/
 
 # User/IDE files
 .vs/
@@ -21,6 +24,11 @@ logs/
 *.log
 run.out.log
 run.err.log
+
+# Local databases
+*.db
+*.db-shm
+*.db-wal
 
 # Local secrets/config
 appsettings.Local.json

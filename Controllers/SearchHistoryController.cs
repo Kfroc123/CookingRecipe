@@ -68,7 +68,9 @@ namespace CookingRecipe.Controllers
             {
                 HttpOnly = false,
                 IsEssential = true,
-                Expires = DateTimeOffset.UtcNow.AddYears(1)
+                Expires = DateTimeOffset.UtcNow.AddYears(1),
+                SameSite = Request.IsHttps ? SameSiteMode.None : SameSiteMode.Lax,
+                Secure = Request.IsHttps
             });
 
             return deviceId;

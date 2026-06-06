@@ -9,6 +9,7 @@ namespace CookingRecipe.Services
 {
     public interface INigerianRecipeDatasetService
     {
+        List<Recipe> GetAll();
         bool IsNigerianQuery(IEnumerable<string> terms, string rawQuery);
         List<Recipe> Search(IEnumerable<string> terms, int max = 10);
         List<Recipe> SearchByIngredientsPriority(IEnumerable<string> terms, int max = 10);
@@ -90,6 +91,11 @@ namespace CookingRecipe.Services
             logger.LogInformation("Nigerian dataset loaded with {Count} recipes.", _recipes.Count);
         }
 
+        public List<Recipe> GetAll()
+        {
+            return _recipes.Select(CloneRecipe).ToList();
+        }
+
         public bool IsNigerianQuery(IEnumerable<string> terms, string rawQuery)
         {
             var combined = string.Join(' ', terms).ToLowerInvariant();
@@ -102,12 +108,12 @@ namespace CookingRecipe.Services
             var normalizedTerms = NormalizeTerms(terms);
             if (normalizedTerms.Length == 0)
             {
-                return _recipes.Take(Math.Clamp(max, 1, 50)).Select(CloneRecipe).ToList();
+                return _recipes.Take(Math.Clamp(max, 1, 500)).Select(CloneRecipe).ToList();
             }
 
             return _recipes
                 .Where(r => normalizedTerms.All(term => RecipeContainsRequestedIngredient(r, term)))
-                .Take(Math.Clamp(max, 1, 50))
+                .Take(Math.Clamp(max, 1, 500))
                 .Select(CloneRecipe)
                 .ToList();
         }
@@ -142,7 +148,7 @@ namespace CookingRecipe.Services
                 .OrderByDescending(x => x.Score)
                 .ThenByDescending(x => x.MatchCount)
                 .ThenBy(x => x.Recipe.Title, StringComparer.OrdinalIgnoreCase)
-                .Take(Math.Clamp(max, 1, 50))
+                .Take(Math.Clamp(max, 1, 500))
                 .Select(x => CloneRecipe(x.Recipe))
                 .ToList();
 

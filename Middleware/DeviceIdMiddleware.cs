@@ -22,7 +22,9 @@ namespace CookingRecipe.Middleware
                 {
                     HttpOnly = false,
                     IsEssential = true,
-                    Expires = DateTimeOffset.UtcNow.AddYears(1)
+                    Expires = DateTimeOffset.UtcNow.AddYears(1),
+                    SameSite = context.Request.IsHttps ? SameSiteMode.None : SameSiteMode.Lax,
+                    Secure = context.Request.IsHttps
                 });
             }
 

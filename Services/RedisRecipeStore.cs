@@ -13,7 +13,7 @@ namespace CookingRecipe.Services
         Task SaveSearchHistoryAsync(string deviceId, SearchHistory history);
         Task<List<SearchHistory>> GetSearchHistoryAsync(string deviceId, int count = 50);
 
-        // favorites per device
+        
         Task AddFavoriteAsync(string deviceId, int recipeId);
         Task RemoveFavoriteAsync(string deviceId, int recipeId);
         Task<List<Recipe>> GetFavoritesAsync(string deviceId);

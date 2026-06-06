@@ -4,7 +4,7 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UserSecretsId>cookingrecipe-3d0df7f5-e5f8-4f86-b0f0-c3e6f28af4b2</UserSecretsId>
-    <DefaultItemExcludes>$(DefaultItemExcludes);CookingRecipe.Tests\**</DefaultItemExcludes>
+    <DefaultItemExcludes>$(DefaultItemExcludes);CookingRecipe.Tests\**;temp_build\**;build-verify\**</DefaultItemExcludes>
   </PropertyGroup>
 
   <ItemGroup>
@@ -20,6 +20,10 @@
     <Content Remove="CookingRecipe.Tests\**\*" />
     <EmbeddedResource Remove="CookingRecipe.Tests\**\*" />
     <None Remove="CookingRecipe.Tests\**\*" />
+    <Compile Remove="temp_build\**\*.cs;build-verify\**\*.cs" />
+    <Content Remove="temp_build\**\*;build-verify\**\*" />
+    <EmbeddedResource Remove="temp_build\**\*;build-verify\**\*" />
+    <None Remove="temp_build\**\*;build-verify\**\*" />
   </ItemGroup>
 
   <ItemGroup>

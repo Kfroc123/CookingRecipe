@@ -1,4 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using CookingRecipe.Conntext;
 using CookingRecipe.Services;
 using CookingRecipe.Entities;
 using CookingRecipe.Dtos;
@@ -21,17 +23,22 @@ namespace CookingRecipe.Controllers
             ["stew"] = ["stewed tomato", "tomato sauce", "sauce"],
             ["beans"] = ["bean", "kidney beans", "black beans", "pinto beans", "white beans"]
         };
+        private static DateTimeOffset? _spoonacularQuotaBlockedUntil;
 
         private readonly ISpoonacularService _spoon;
         private readonly INigerianRecipeDatasetService _nigerianDataset;
         private readonly IRedisStore _store;
+        private readonly CookingRecipeContext _context;
         private const string CookieName = "deviceId";
+        private const int MaxProviderCandidates = 60;
+        private const int ProviderDetailBatchSize = 6;
 
-        public RecipesController(ISpoonacularService spoon, INigerianRecipeDatasetService nigerianDataset, IRedisStore store)
+        public RecipesController(ISpoonacularService spoon, INigerianRecipeDatasetService nigerianDataset, IRedisStore store, CookingRecipeContext context)
         {
             _spoon = spoon;
             _nigerianDataset = nigerianDataset;
             _store = store;
+            _context = context;
         }
 
         // Search live (Spoonacular) and save results to Redis
@@ -45,17 +52,24 @@ namespace CookingRecipe.Controllers
 
             var sanitizedMax = Math.Clamp(max, 1, 50);
             var prioritizedNigerian = FilterDisallowedRecipeTitles(_nigerianDataset.SearchByIngredientsPriority(parts, sanitizedMax));
-            var explicitNigerianIntent = _nigerianDataset.IsNigerianQuery(parts, ingredients);
 
-            if (prioritizedNigerian.Count > 0 && (!_spoon.IsConfigured || explicitNigerianIntent || prioritizedNigerian.Count >= sanitizedMax))
+            if (prioritizedNigerian.Count > 0)
             {
                 EnsureRecipeImages(prioritizedNigerian);
-                foreach (var recipe in prioritizedNigerian)
-                {
-                    await _store.SaveRecipeAsync(recipe);
-                }
-                await SaveSearchHistorySafeAsync(string.Join(',', parts), "nigerian-priority-search", prioritizedNigerian);
+                CacheRecipesInBackground(prioritizedNigerian);
+                SaveSearchHistoryInBackground(string.Join(',', parts), "nigerian-priority-search", prioritizedNigerian);
                 return Ok(prioritizedNigerian);
+            }
+
+            if (IsSpoonacularQuotaBlocked())
+            {
+                var fallback = await BuildLocalSearchFallbackAsync(parts, sanitizedMax);
+                if (fallback.Count == 0 && parts.Length == 1)
+                {
+                    fallback = await GetOpenSearchFallbackSuggestionsAsync(ingredients, parts, sanitizedMax);
+                }
+                SaveSearchHistoryInBackground(string.Join(',', parts), "local-quota-fallback-search", fallback);
+                return Ok(fallback);
             }
 
             if (!_spoon.IsConfigured)
@@ -63,11 +77,8 @@ namespace CookingRecipe.Controllers
                 if (prioritizedNigerian.Count > 0)
                 {
                     EnsureRecipeImages(prioritizedNigerian);
-                    foreach (var recipe in prioritizedNigerian)
-                    {
-                        await _store.SaveRecipeAsync(recipe);
-                    }
-                    await SaveSearchHistorySafeAsync(string.Join(',', parts), "nigerian-priority-search", prioritizedNigerian);
+                    CacheRecipesInBackground(prioritizedNigerian);
+                    SaveSearchHistoryInBackground(string.Join(',', parts), "nigerian-priority-search", prioritizedNigerian);
                     return Ok(prioritizedNigerian);
                 }
 
@@ -77,12 +88,17 @@ namespace CookingRecipe.Controllers
             List<Recipe> list;
             try
             {
-                list = await GetStrictSuggestionsAsync(parts, sanitizedMax);
-                // Only fall back to title search for single-term queries.
-                // Multi-ingredient queries should remain strict ingredient matches.
-                if (list.Count == 0 && parts.Length == 1)
+                if (parts.Length == 1)
                 {
                     list = await GetNameFallbackSuggestionsAsync(ingredients, sanitizedMax);
+                    if (list.Count == 0)
+                    {
+                        list = await GetStrictSuggestionsAsync(parts, sanitizedMax);
+                    }
+                }
+                else
+                {
+                    list = await GetStrictSuggestionsAsync(parts, sanitizedMax);
                 }
 
                 if (prioritizedNigerian.Count > 0)
@@ -95,10 +111,20 @@ namespace CookingRecipe.Controllers
             }
             catch (HttpRequestException ex)
             {
-                return StatusCode(StatusCodes.Status502BadGateway, ex.Message);
+                if (!IsSpoonacularQuotaFailure(ex))
+                {
+                    return StatusCode(StatusCodes.Status502BadGateway, "Recipe provider is unavailable right now. Please try again later.");
+                }
+
+                RememberSpoonacularQuotaFailure();
+                list = await BuildLocalSearchFallbackAsync(parts, sanitizedMax, prioritizedNigerian);
+                if (list.Count == 0 && parts.Length == 1)
+                {
+                    list = await GetOpenSearchFallbackSuggestionsAsync(ingredients, parts, sanitizedMax);
+                }
             }
 
-            await SaveSearchHistorySafeAsync(string.Join(',', parts), "ingredients-search", list);
+            SaveSearchHistoryInBackground(string.Join(',', parts), "ingredients-search", list);
             return Ok(list);
         }
 
@@ -126,17 +152,20 @@ namespace CookingRecipe.Controllers
 
             var sanitizedMax = Math.Clamp(request.Max, 1, 50);
             var localResults = FilterDisallowedRecipeTitles(_nigerianDataset.SearchByIngredientsPriority(normalized, sanitizedMax));
-            var explicitNigerianIntent = _nigerianDataset.IsNigerianQuery(normalized, string.Join(' ', request.Ingredients));
 
-            if (localResults.Count > 0 && (!_spoon.IsConfigured || explicitNigerianIntent || localResults.Count >= sanitizedMax))
+            if (localResults.Count > 0)
             {
                 EnsureRecipeImages(localResults);
-                foreach (var recipe in localResults)
-                {
-                    await _store.SaveRecipeAsync(recipe);
-                }
-                await SaveSearchHistorySafeAsync(string.Join(',', normalized), "nigerian-priority-suggest", localResults);
+                CacheRecipesInBackground(localResults);
+                SaveSearchHistoryInBackground(string.Join(',', normalized), "nigerian-priority-suggest", localResults);
                 return Ok(localResults);
+            }
+
+            if (IsSpoonacularQuotaBlocked())
+            {
+                var fallback = await BuildLocalSearchFallbackAsync(normalized, sanitizedMax);
+                SaveSearchHistoryInBackground(string.Join(',', normalized), "local-quota-fallback-suggest", fallback);
+                return Ok(fallback);
             }
 
             if (!_spoon.IsConfigured)
@@ -144,11 +173,8 @@ namespace CookingRecipe.Controllers
                 if (localResults.Count > 0)
                 {
                     EnsureRecipeImages(localResults);
-                    foreach (var recipe in localResults)
-                    {
-                        await _store.SaveRecipeAsync(recipe);
-                    }
-                    await SaveSearchHistorySafeAsync(string.Join(',', normalized), "nigerian-priority-suggest", localResults);
+                    CacheRecipesInBackground(localResults);
+                    SaveSearchHistoryInBackground(string.Join(',', normalized), "nigerian-priority-suggest", localResults);
                     return Ok(localResults);
                 }
 
@@ -168,14 +194,17 @@ namespace CookingRecipe.Controllers
             }
             catch (HttpRequestException ex)
             {
-                return StatusCode(StatusCodes.Status502BadGateway, ex.Message);
+                if (!IsSpoonacularQuotaFailure(ex))
+                {
+                    return StatusCode(StatusCodes.Status502BadGateway, "Recipe provider is unavailable right now. Please try again later.");
+                }
+
+                RememberSpoonacularQuotaFailure();
+                enriched = await BuildLocalSearchFallbackAsync(normalized, sanitizedMax, localResults);
             }
 
-            foreach (var recipe in enriched)
-            {
-                await _store.SaveRecipeAsync(recipe);
-            }
-            await SaveSearchHistorySafeAsync(string.Join(',', normalized), "suggest-by-ingredients", enriched);
+            CacheRecipesInBackground(enriched);
+            SaveSearchHistoryInBackground(string.Join(',', normalized), "suggest-by-ingredients", enriched);
 
             return Ok(enriched);
         }
@@ -192,10 +221,51 @@ namespace CookingRecipe.Controllers
             return merged;
         }
 
-        [HttpGet]
-        public IActionResult GetAll()
+        private async Task<List<Recipe>> BuildLocalSearchFallbackAsync(string[] normalizedIngredients, int max, List<Recipe>? knownLocalResults = null)
         {
-            var recipes = FilterDisallowedRecipeTitles(_nigerianDataset.Search(Array.Empty<string>(), 50));
+            var sanitizedMax = Math.Clamp(max, 1, 50);
+            var localResults = FilterDisallowedRecipeTitles(knownLocalResults ?? _nigerianDataset.SearchByIngredientsPriority(normalizedIngredients, sanitizedMax))
+                .Take(sanitizedMax)
+                .ToList();
+
+            if (localResults.Count > 0)
+            {
+                EnsureRecipeImages(localResults);
+                CacheRecipesInBackground(localResults);
+                return localResults;
+            }
+
+            var cachedResults = FilterDisallowedRecipeTitles(await _store.SearchStoredRecipesAsync(normalizedIngredients, sanitizedMax));
+            var fallback = localResults
+                .Concat(cachedResults)
+                .GroupBy(r => r.Id)
+                .Select(g => g.First())
+                .Take(sanitizedMax)
+                .ToList();
+
+            EnsureRecipeImages(fallback);
+            CacheRecipesInBackground(fallback);
+
+            return fallback;
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetAll()
+        {
+            var databaseRecipes = await _context.Recipes
+                .AsNoTracking()
+                .Include(r => r.Ingredients)
+                .ThenInclude(ri => ri.Ingredient)
+                .ToListAsync();
+
+            var recipes = FilterDisallowedRecipeTitles(
+                databaseRecipes.Select(CloneRecipeForResponse)
+                    .Concat(_nigerianDataset.GetAll()))
+                .GroupBy(r => r.Id)
+                .Select(g => g.First())
+                .OrderBy(r => r.Id)
+                .ToList();
+
             EnsureRecipeImages(recipes);
             return Ok(recipes);
         }
@@ -207,7 +277,7 @@ namespace CookingRecipe.Controllers
             var nigerian = _nigerianDataset.GetById(id);
             if (nigerian != null)
             {
-                if (IsDisallowedTitle(nigerian.Title))
+                if (IsDisallowedRecipe(nigerian))
                 {
                     return NotFound();
                 }
@@ -226,7 +296,7 @@ namespace CookingRecipe.Controllers
             var r = await _store.GetRecipeAsync(id);
             if (r != null)
             {
-                if (IsDisallowedTitle(r.Title))
+                if (IsDisallowedRecipe(r))
                 {
                     return NotFound();
                 }
@@ -244,11 +314,17 @@ namespace CookingRecipe.Controllers
             }
             catch (HttpRequestException ex)
             {
-                return StatusCode(StatusCodes.Status502BadGateway, ex.Message);
+                if (IsSpoonacularQuotaFailure(ex))
+                {
+                    RememberSpoonacularQuotaFailure();
+                    return StatusCode(StatusCodes.Status503ServiceUnavailable, "Spoonacular daily quota has been reached. Try a local recipe or search again later.");
+                }
+
+                return StatusCode(StatusCodes.Status502BadGateway, "Recipe provider is unavailable right now. Please try again later.");
             }
 
             if (r == null) return NotFound();
-            if (IsDisallowedTitle(r.Title)) return NotFound();
+            if (IsDisallowedRecipe(r)) return NotFound();
             EnsureRecipeImage(r);
 
             await _store.SaveRecipeAsync(r);
@@ -302,7 +378,9 @@ namespace CookingRecipe.Controllers
             {
                 HttpOnly = false,
                 IsEssential = true,
-                Expires = DateTimeOffset.UtcNow.AddYears(1)
+                Expires = DateTimeOffset.UtcNow.AddYears(1),
+                SameSite = Request.IsHttps ? SameSiteMode.None : SameSiteMode.Lax,
+                Secure = Request.IsHttps
             });
 
             return deviceId;
@@ -326,8 +404,47 @@ namespace CookingRecipe.Controllers
             }
             catch
             {
-                // do not break core recipe search if history write fails
+              
             }
+        }
+
+        private void SaveSearchHistoryInBackground(string searchText, string category, List<Recipe> results)
+        {
+            var deviceId = GetOrCreateDeviceId();
+            var history = new SearchHistory
+            {
+                DeviceId = deviceId,
+                SearchText = searchText,
+                Category = category,
+                SearchDate = DateTime.UtcNow,
+                JsonResult = JsonSerializer.Serialize(results)
+            };
+
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    await _store.SaveSearchHistoryAsync(deviceId, history);
+                }
+                catch
+                {
+                   
+                }
+            });
+        }
+
+        private void CacheRecipesInBackground(IEnumerable<Recipe> recipes)
+        {
+            var recipesToCache = recipes.ToList();
+            if (recipesToCache.Count == 0) return;
+
+            _ = Task.Run(async () =>
+            {
+                foreach (var recipe in recipesToCache)
+                {
+                    await _store.SaveRecipeAsync(recipe);
+                }
+            });
         }
 
         private async Task<List<Recipe>> GetStrictSuggestionsAsync(string[] normalizedIngredients, int max)
@@ -339,7 +456,7 @@ namespace CookingRecipe.Controllers
                 .ToArray();
             var ingredientsCsv = string.Join(',', providerTerms);
 
-            var candidateCount = Math.Clamp(sanitizedMax * 15, sanitizedMax, 150);
+            var candidateCount = Math.Clamp(sanitizedMax * 4, sanitizedMax, MaxProviderCandidates);
             var candidateIds = new List<int>();
             var fallbackCandidates = new List<Recipe>();
             HttpRequestException? providerFailure = null;
@@ -351,7 +468,7 @@ namespace CookingRecipe.Controllers
             catch (HttpRequestException ex)
             {
                 providerFailure = ex;
-                // Continue with local/cached fallback paths below.
+               
             }
             var fallbackById = fallbackCandidates
                 .GroupBy(r => r.Id)
@@ -368,31 +485,28 @@ namespace CookingRecipe.Controllers
                 candidateIds = candidateIds
                     .Concat(fallbackById.Keys)
                     .Distinct()
+                    .Take(candidateCount)
                     .ToList();
             }
 
             var enriched = new List<Recipe>(sanitizedMax);
-            foreach (var recipeId in candidateIds)
+            foreach (var batch in candidateIds.Chunk(ProviderDetailBatchSize))
             {
-                Recipe? detail = null;
-                try
-                {
-                    detail = await _spoon.GetRecipeDetailAsync(recipeId);
-                }
-                catch
-                {
-                    // Use fallback candidate if detail call fails.
-                }
-                var candidate = detail;
-                if (candidate == null && fallbackById.TryGetValue(recipeId, out var fallback))
-                {
-                    candidate = fallback;
-                }
-                if (candidate == null) continue;
-                if (!normalizedIngredients.All(term => RecipeContainsRequestedIngredient(candidate, term))) continue;
+                var candidates = await Task.WhenAll(batch.Select(recipeId => GetBestCandidateAsync(recipeId, fallbackById)));
 
-                enriched.Add(candidate);
-                if (enriched.Count >= sanitizedMax) break;
+                foreach (var candidate in candidates)
+                {
+                    if (candidate == null) continue;
+                    if (!normalizedIngredients.All(term => RecipeContainsRequestedIngredient(candidate, term))) continue;
+
+                    enriched.Add(candidate);
+                    if (enriched.Count >= sanitizedMax) break;
+                }
+
+                if (enriched.Count >= sanitizedMax)
+                {
+                    break;
+                }
             }
 
             if (enriched.Count == 0 && normalizedIngredients.Length == 1)
@@ -418,36 +532,87 @@ namespace CookingRecipe.Controllers
                 throw providerFailure;
             }
 
-            foreach (var recipe in enriched)
-            {
-                await _store.SaveRecipeAsync(recipe);
-            }
+            CacheRecipesInBackground(enriched);
 
             return enriched;
+        }
+
+        private async Task<Recipe?> GetBestCandidateAsync(int recipeId, IReadOnlyDictionary<int, Recipe> fallbackById)
+        {
+            try
+            {
+                var detail = await _spoon.GetRecipeDetailAsync(recipeId);
+                if (detail != null)
+                {
+                    return detail;
+                }
+            }
+            catch
+            {
+              
+            }
+
+            return fallbackById.TryGetValue(recipeId, out var fallback) ? fallback : null;
         }
 
         private async Task<List<Recipe>> GetNameFallbackSuggestionsAsync(string query, int max)
         {
             var sanitizedMax = Math.Clamp(max, 1, 50);
+            var openResults = await GetOpenSearchFallbackSuggestionsAsync(query, [query.Trim()], sanitizedMax);
+            if (openResults.Count > 0)
+            {
+                return openResults;
+            }
+
             var candidateCount = Math.Clamp(sanitizedMax * 10, sanitizedMax, 100);
             var ids = await _spoon.SearchRecipeIdsByTitleAsync(query.Trim(), candidateCount);
             if (ids.Count == 0) return new List<Recipe>();
 
             var list = new List<Recipe>(sanitizedMax);
-            foreach (var recipeId in ids.Distinct())
+            foreach (var batch in ids.Distinct().Take(candidateCount).Chunk(ProviderDetailBatchSize))
             {
-                var detail = await _spoon.GetRecipeDetailAsync(recipeId);
-                if (detail == null) continue;
-                list.Add(detail);
-                if (list.Count >= sanitizedMax) break;
+                var details = await Task.WhenAll(batch.Select(GetRecipeDetailSafeAsync));
+                foreach (var detail in details)
+                {
+                    if (detail == null) continue;
+                    list.Add(detail);
+                    if (list.Count >= sanitizedMax) break;
+                }
+
+                if (list.Count >= sanitizedMax)
+                {
+                    break;
+                }
             }
 
-            foreach (var recipe in list)
-            {
-                await _store.SaveRecipeAsync(recipe);
-            }
+            CacheRecipesInBackground(list);
 
             return list;
+        }
+
+        private async Task<List<Recipe>> GetOpenSearchFallbackSuggestionsAsync(string query, IEnumerable<string> requiredTerms, int max)
+        {
+            var sanitizedMax = Math.Clamp(max, 1, 50);
+            var list = FilterDisallowedRecipeTitles(await _spoon.SearchOpenRecipesAsync(query.Trim(), requiredTerms, sanitizedMax))
+                .Take(sanitizedMax)
+                .ToList();
+
+            EnsureRecipeImages(list);
+            CacheRecipesInBackground(list);
+
+            return list;
+        }
+
+        private async Task<Recipe?> GetRecipeDetailSafeAsync(int recipeId)
+        {
+            try
+            {
+                return await _spoon.GetRecipeDetailAsync(recipeId);
+            }
+            catch
+            {
+                return null;
+            }
         }
 
         private static bool RecipeContainsTerm(Recipe recipe, string term)
@@ -562,15 +727,85 @@ namespace CookingRecipe.Controllers
             }
         }
 
+        private static Recipe CloneRecipeForResponse(Recipe recipe)
+        {
+            return new Recipe
+            {
+                Id = recipe.Id,
+                Title = recipe.Title,
+                Summary = recipe.Summary,
+                Instructions = recipe.Instructions,
+                Category = recipe.Category,
+                ImageUrl = recipe.ImageUrl,
+                SourceUrl = recipe.SourceUrl,
+                ReadyInMinutes = recipe.ReadyInMinutes,
+                Servings = recipe.Servings,
+                Nutrition = new NutritionInfo
+                {
+                    Calories = recipe.Nutrition.Calories,
+                    FatGrams = recipe.Nutrition.FatGrams,
+                    CarbsGrams = recipe.Nutrition.CarbsGrams,
+                    ProteinGrams = recipe.Nutrition.ProteinGrams
+                },
+                Ingredients = recipe.Ingredients.Select(i => new RecipeIngredient
+                {
+                    RecipeId = i.RecipeId,
+                    IngredientId = i.IngredientId,
+                    Quantity = i.Quantity,
+                    Ingredient = new Ingredient
+                    {
+                        Id = i.Ingredient?.Id ?? i.IngredientId,
+                        Name = i.Ingredient?.Name ?? string.Empty,
+                        Notes = i.Ingredient?.Notes
+                    }
+                }).ToList()
+            };
+        }
+
         private static bool IsDisallowedTitle(string? title)
         {
             return !string.IsNullOrWhiteSpace(title) && ExcludedTitlePattern.IsMatch(title);
         }
 
+        private static bool IsDisallowedRecipe(Recipe recipe)
+        {
+            if (IsDisallowedTitle(recipe.Title))
+            {
+                return true;
+            }
+
+            if (!string.IsNullOrWhiteSpace(recipe.Title) &&
+                recipe.Title.Contains("goat", StringComparison.OrdinalIgnoreCase))
+            {
+                return true;
+            }
+
+            return recipe.Ingredients.Any(i =>
+                !string.IsNullOrWhiteSpace(i.Ingredient?.Name) &&
+                i.Ingredient.Name.Contains("goat", StringComparison.OrdinalIgnoreCase));
+        }
+
+        private static bool IsSpoonacularQuotaFailure(HttpRequestException ex)
+        {
+            return ex.StatusCode == System.Net.HttpStatusCode.PaymentRequired ||
+                   ex.Message.Contains("daily points limit", StringComparison.OrdinalIgnoreCase) ||
+                   ex.Message.Contains("PaymentRequired", StringComparison.OrdinalIgnoreCase);
+        }
+
+        private static bool IsSpoonacularQuotaBlocked()
+        {
+            return _spoonacularQuotaBlockedUntil > DateTimeOffset.UtcNow;
+        }
+
+        private static void RememberSpoonacularQuotaFailure()
+        {
+            _spoonacularQuotaBlockedUntil = DateTimeOffset.UtcNow.AddHours(12);
+        }
+
         private static List<Recipe> FilterDisallowedRecipeTitles(IEnumerable<Recipe> recipes)
         {
             return recipes
-                .Where(r => !IsDisallowedTitle(r.Title))
+                .Where(r => !IsDisallowedRecipe(r))
                 .ToList();
         }
     }

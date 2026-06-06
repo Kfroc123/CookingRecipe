@@ -3,6 +3,7 @@ using CookingRecipe.Conntext;
 using StackExchange.Redis;
 using CookingRecipe.Services;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.HttpOverrides;
 
 namespace cookingrecipe
 {
@@ -15,13 +16,20 @@ namespace cookingrecipe
             builder.Logging.AddConsole();
             builder.Logging.AddDebug();
 
-            var defaultConnection = builder.Configuration.GetConnectionString("DefaultConnection")
-                ?? "Data Source=cookingrecipe.db";
+            var runningOnRender = string.Equals(builder.Configuration["RENDER"], "true", StringComparison.OrdinalIgnoreCase);
+            var defaultConnection = builder.Configuration.GetConnectionString("DefaultConnection");
+            if (string.IsNullOrWhiteSpace(defaultConnection))
+            {
+                var dbPath = builder.Environment.IsDevelopment()
+                    ? "cookingrecipe.db"
+                    : Path.Combine(Path.GetTempPath(), "cookingrecipe.db");
+                defaultConnection = $"Data Source={dbPath}";
+            }
 
             builder.Services.AddDbContext<CookingRecipeContext>(options =>
                 options.UseSqlite(defaultConnection));
 
-            // Configure Redis connection (only use Redis when explicitly configured)
+            
             var redisConn = builder.Configuration.GetConnectionString("Redis");
             builder.Services.AddSingleton<IRedisStore>(sp =>
             {
@@ -42,7 +50,7 @@ namespace cookingrecipe
                         return new InMemoryRecipeStore();
                     }
 
-                    logger.LogInformation("Using Redis recipe store at {RedisConnection}.", redisConn);
+                    logger.LogInformation("Using Redis recipe store at {RedisConnection}.", DescribeRedisConnection(redisConn));
                     return new RedisRecipeStore(multiplexer);
                 }
                 catch (Exception ex)
@@ -53,15 +61,23 @@ namespace cookingrecipe
             });
 
             // Register HttpClient and Spoonacular service
-            builder.Services.AddHttpClient<ISpoonacularService, SpoonacularService>()
-                .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
-                {
-                    UseProxy = false
-                });
+            builder.Services.AddHttpClient<ISpoonacularService, SpoonacularService>(client =>
+            {
+                client.Timeout = TimeSpan.FromSeconds(30);
+            });
             builder.Services.AddSingleton<INigerianRecipeDatasetService, NigerianRecipeDatasetService>();
 
             builder.Services.AddControllers();
             builder.Services.AddHealthChecks();
+            if (runningOnRender)
+            {
+                builder.Services.Configure<ForwardedHeadersOptions>(options =>
+                {
+                    options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+                    options.KnownNetworks.Clear();
+                    options.KnownProxies.Clear();
+                });
+            }
             // Swagger
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
@@ -76,7 +92,17 @@ namespace cookingrecipe
                     {
                         if (builder.Environment.IsDevelopment())
                         {
-                            policy.WithOrigins("http://localhost:5173", "http://127.0.0.1:5173")
+                            policy.SetIsOriginAllowed(origin =>
+                            {
+                                if (!Uri.TryCreate(origin, UriKind.Absolute, out var uri))
+                                {
+                                    return false;
+                                }
+
+                                return string.Equals(uri.Host, "localhost", StringComparison.OrdinalIgnoreCase)
+                                    || string.Equals(uri.Host, "127.0.0.1", StringComparison.OrdinalIgnoreCase)
+                                    || string.Equals(uri.Host, "::1", StringComparison.OrdinalIgnoreCase);
+                            })
                                   .AllowCredentials();
                         }
                         else if (allowedOrigins.Length > 0)
@@ -96,6 +122,11 @@ namespace cookingrecipe
 
             var app = builder.Build();
             EnsureDatabaseMigrated(app);
+
+            if (runningOnRender)
+            {
+                app.UseForwardedHeaders();
+            }
 
             app.UseCors("AllowReactApp");
             app.UseExceptionHandler(errorApp =>
@@ -186,6 +217,19 @@ namespace cookingrecipe
             }
 
             return string.Join(",", list);
+        }
+
+        private static string DescribeRedisConnection(string connectionString)
+        {
+            if (Uri.TryCreate(connectionString, UriKind.Absolute, out var uri) &&
+                (string.Equals(uri.Scheme, "redis", StringComparison.OrdinalIgnoreCase) ||
+                 string.Equals(uri.Scheme, "rediss", StringComparison.OrdinalIgnoreCase)))
+            {
+                return $"{uri.Scheme}://{uri.Host}:{uri.Port}";
+            }
+
+            var endpoint = connectionString.Split(',', 2)[0];
+            return string.IsNullOrWhiteSpace(endpoint) ? "configured Redis endpoint" : endpoint;
         }
     }
 }

@@ -41,7 +41,7 @@ namespace CookingRecipe.Conntext
                     nutrition.Property(n => n.ProteinGrams).HasColumnName("ProteinGrams");
                 });
 
-                // Recipe -> RecipeIngredient (1..* )
+             
                 entity.HasMany(r => r.Ingredients)
                       .WithOne(ri => ri.Recipe)
                       .HasForeignKey(ri => ri.RecipeId)

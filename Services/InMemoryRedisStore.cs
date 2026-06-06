@@ -7,7 +7,7 @@ using CookingRecipe.Entities;
 
 namespace CookingRecipe.Services
 {
-    // Simple in-memory fallback when Redis is unavailable (for local dev/demo)
+   
     public class InMemoryRecipeStore : IRedisStore
     {
         private readonly ConcurrentDictionary<int, Recipe> _recipes = new();

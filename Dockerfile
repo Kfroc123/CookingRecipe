@@ -4,27 +4,25 @@
 FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS base
 USER $APP_UID
 WORKDIR /app
-EXPOSE 8080
-EXPOSE 8081
+EXPOSE 10000
 
 
 # This stage is used to build the service project
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
-COPY ["cookingrecipe/cookingrecipe.csproj", "cookingrecipe/"]
-RUN dotnet restore "./cookingrecipe/cookingrecipe.csproj"
+COPY ["CookingRecipe.csproj", "./"]
+RUN dotnet restore "./CookingRecipe.csproj"
 COPY . .
-WORKDIR "/src/cookingrecipe"
-RUN dotnet build "./cookingrecipe.csproj" -c $BUILD_CONFIGURATION -o /app/build
+RUN dotnet build "./CookingRecipe.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
 # This stage is used to publish the service project to be copied to the final stage
 FROM build AS publish
 ARG BUILD_CONFIGURATION=Release
-RUN dotnet publish "./cookingrecipe.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "./CookingRecipe.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
 
 # This stage is used in production or when running from VS in regular mode (Default when not using the Debug configuration)
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "cookingrecipe.dll"]
+ENTRYPOINT ["sh", "-c", "dotnet CookingRecipe.dll --urls http://0.0.0.0:${PORT:-10000}"]
