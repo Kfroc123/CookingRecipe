@@ -37,6 +37,25 @@ namespace CookingRecipe.Migrations
                     b.ToTable("Ingredients");
                 });
 
+            modelBuilder.Entity("CookingRecipe.Entities.FavoriteRecipe", b =>
+                {
+                    b.Property<string>("DeviceId")
+                        .HasMaxLength(100)
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("RecipeId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("DeviceId", "RecipeId");
+
+                    b.HasIndex("DeviceId");
+
+                    b.ToTable("FavoriteRecipes");
+                });
+
             modelBuilder.Entity("CookingRecipe.Entities.Recipe", b =>
                 {
                     b.Property<int>("Id")

@@ -31,34 +31,33 @@ namespace cookingrecipe
 
             
             var redisConn = builder.Configuration.GetConnectionString("Redis");
-            builder.Services.AddSingleton<IRedisStore>(sp =>
+            if (string.IsNullOrWhiteSpace(redisConn))
             {
-                var logger = sp.GetRequiredService<ILogger<Program>>();
-                if (string.IsNullOrWhiteSpace(redisConn))
-                {
-                    logger.LogInformation("No Redis connection configured. Using in-memory recipe store.");
-                    return new InMemoryRecipeStore();
-                }
-
+                builder.Services.AddScoped<IRedisStore, DatabaseRecipeStore>();
+            }
+            else
+            {
                 try
                 {
                     var normalizedRedisConn = NormalizeRedisConnectionString(redisConn);
                     var multiplexer = ConnectionMultiplexer.Connect($"{normalizedRedisConn},abortConnect=false");
-                    if (!multiplexer.IsConnected)
+                    if (multiplexer.IsConnected)
                     {
-                        logger.LogWarning("Redis configured but not connected. Falling back to in-memory recipe store.");
-                        return new InMemoryRecipeStore();
+                        builder.Services.AddSingleton<IConnectionMultiplexer>(multiplexer);
+                        builder.Services.AddScoped<IRedisStore>(sp =>
+                            new RedisRecipeStore(sp.GetRequiredService<IConnectionMultiplexer>()));
                     }
-
-                    logger.LogInformation("Using Redis recipe store at {RedisConnection}.", DescribeRedisConnection(redisConn));
-                    return new RedisRecipeStore(multiplexer);
+                    else
+                    {
+                        multiplexer.Dispose();
+                        builder.Services.AddScoped<IRedisStore, DatabaseRecipeStore>();
+                    }
                 }
-                catch (Exception ex)
+                catch
                 {
-                    logger.LogWarning(ex, "Redis unavailable. Falling back to in-memory recipe store.");
-                    return new InMemoryRecipeStore();
+                    builder.Services.AddScoped<IRedisStore, DatabaseRecipeStore>();
                 }
-            });
+            }
 
             // Register HttpClient and Spoonacular service
             builder.Services.AddHttpClient<ISpoonacularService, SpoonacularService>(client =>
@@ -107,12 +106,14 @@ namespace cookingrecipe
                         }
                         else if (allowedOrigins.Length > 0)
                         {
-                            policy.WithOrigins(allowedOrigins);
+                            policy.WithOrigins(allowedOrigins)
+                                  .AllowCredentials();
                         }
                         else
                         {
                             // Safe default for production if no explicit origins are configured
-                            policy.WithOrigins("http://localhost:5173");
+                            policy.WithOrigins("http://localhost:5173")
+                                  .AllowCredentials();
                         }
 
                         policy.AllowAnyHeader()
@@ -175,6 +176,26 @@ namespace cookingrecipe
             using var scope = app.Services.CreateScope();
             var context = scope.ServiceProvider.GetRequiredService<CookingRecipeContext>();
             context.Database.Migrate();
+            EnsureFavoriteRecipesTable(context);
+        }
+
+        private static void EnsureFavoriteRecipesTable(CookingRecipeContext context)
+        {
+            context.Database.ExecuteSqlRaw(
+                """
+                CREATE TABLE IF NOT EXISTS "FavoriteRecipes" (
+                    "DeviceId" TEXT NOT NULL,
+                    "RecipeId" INTEGER NOT NULL,
+                    "CreatedAt" TEXT NOT NULL,
+                    CONSTRAINT "PK_FavoriteRecipes" PRIMARY KEY ("DeviceId", "RecipeId")
+                );
+                """);
+
+            context.Database.ExecuteSqlRaw(
+                """
+                CREATE INDEX IF NOT EXISTS "IX_FavoriteRecipes_DeviceId"
+                ON "FavoriteRecipes" ("DeviceId");
+                """);
         }
 
         private static string NormalizeRedisConnectionString(string connectionString)

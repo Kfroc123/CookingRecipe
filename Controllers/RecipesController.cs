@@ -335,8 +335,22 @@ namespace CookingRecipe.Controllers
         public async Task<IActionResult> AddFavorite(int id)
         {
             var deviceId = GetOrCreateDeviceId();
+            var recipe = await ResolveRecipeForFavoriteAsync(id);
+            if (recipe == null)
+            {
+                return NotFound("Recipe could not be found.");
+            }
+
+            try
+            {
+                await _store.SaveRecipeAsync(recipe);
+            }
+            catch
+            {
+                // Favorite IDs can still be saved even if recipe caching fails.
+            }
             await _store.AddFavoriteAsync(deviceId, id);
-            return Ok();
+            return Ok(recipe);
         }
 
         [HttpDelete("{id:int}/favorite")]
@@ -351,9 +365,92 @@ namespace CookingRecipe.Controllers
         public async Task<IActionResult> GetFavorites()
         {
             var deviceId = GetOrCreateDeviceId();
-            var list = FilterDisallowedRecipeTitles(await _store.GetFavoritesAsync(deviceId));
+            var favoriteIds = await _store.GetFavoriteIdsAsync(deviceId);
+            var list = new List<Recipe>();
+
+            foreach (var id in favoriteIds)
+            {
+                var recipe = await ResolveRecipeForFavoriteAsync(id);
+                if (recipe != null)
+                {
+                    list.Add(recipe);
+                    try
+                    {
+                        await _store.SaveRecipeAsync(recipe);
+                    }
+                    catch
+                    {
+                        // Keep favorites readable even if cache persistence is unavailable.
+                    }
+                }
+            }
+
+            if (list.Count == 0)
+            {
+                list = await _store.GetFavoritesAsync(deviceId);
+            }
+
+            list = FilterDisallowedRecipeTitles(list)
+                .GroupBy(r => r.Id)
+                .Select(g => g.First())
+                .ToList();
             EnsureRecipeImages(list);
             return Ok(list);
+        }
+
+        private async Task<Recipe?> ResolveRecipeForFavoriteAsync(int id)
+        {
+            var nigerian = _nigerianDataset.GetById(id);
+            if (nigerian != null)
+            {
+                if (IsDisallowedRecipe(nigerian)) return null;
+                EnsureRecipeImage(nigerian);
+                return nigerian;
+            }
+
+            var stored = await _store.GetRecipeAsync(id);
+            if (stored != null)
+            {
+                if (IsDisallowedRecipe(stored)) return null;
+                EnsureRecipeImage(stored);
+                return stored;
+            }
+
+            var databaseRecipe = await _context.Recipes
+                .AsNoTracking()
+                .Include(r => r.Ingredients)
+                .ThenInclude(ri => ri.Ingredient)
+                .FirstOrDefaultAsync(r => r.Id == id);
+
+            if (databaseRecipe != null)
+            {
+                var cloned = CloneRecipeForResponse(databaseRecipe);
+                if (IsDisallowedRecipe(cloned)) return null;
+                EnsureRecipeImage(cloned);
+                return cloned;
+            }
+
+            if (!_spoon.IsConfigured)
+            {
+                return null;
+            }
+
+            try
+            {
+                var remote = await _spoon.GetRecipeDetailAsync(id);
+                if (remote == null || IsDisallowedRecipe(remote)) return null;
+                EnsureRecipeImage(remote);
+                return remote;
+            }
+            catch (HttpRequestException ex)
+            {
+                if (IsSpoonacularQuotaFailure(ex))
+                {
+                    RememberSpoonacularQuotaFailure();
+                }
+
+                return null;
+            }
         }
 
         [HttpGet("stored/search")]
@@ -379,11 +476,17 @@ namespace CookingRecipe.Controllers
                 HttpOnly = false,
                 IsEssential = true,
                 Expires = DateTimeOffset.UtcNow.AddYears(1),
-                SameSite = Request.IsHttps ? SameSiteMode.None : SameSiteMode.Lax,
-                Secure = Request.IsHttps
+                SameSite = IsSecureRequest() ? SameSiteMode.None : SameSiteMode.Lax,
+                Secure = IsSecureRequest()
             });
 
             return deviceId;
+        }
+
+        private bool IsSecureRequest()
+        {
+            return Request.IsHttps ||
+                string.Equals(Request.Headers["X-Forwarded-Proto"].FirstOrDefault(), "https", StringComparison.OrdinalIgnoreCase);
         }
 
         private async Task SaveSearchHistorySafeAsync(string searchText, string category, List<Recipe> results)
@@ -420,17 +523,14 @@ namespace CookingRecipe.Controllers
                 JsonResult = JsonSerializer.Serialize(results)
             };
 
-            _ = Task.Run(async () =>
+            try
             {
-                try
-                {
-                    await _store.SaveSearchHistoryAsync(deviceId, history);
-                }
-                catch
-                {
-                   
-                }
-            });
+                _store.SaveSearchHistoryAsync(deviceId, history).GetAwaiter().GetResult();
+            }
+            catch
+            {
+               
+            }
         }
 
         private void CacheRecipesInBackground(IEnumerable<Recipe> recipes)
@@ -438,13 +538,17 @@ namespace CookingRecipe.Controllers
             var recipesToCache = recipes.ToList();
             if (recipesToCache.Count == 0) return;
 
-            _ = Task.Run(async () =>
+            try
             {
                 foreach (var recipe in recipesToCache)
                 {
-                    await _store.SaveRecipeAsync(recipe);
+                    _store.SaveRecipeAsync(recipe).GetAwaiter().GetResult();
                 }
-            });
+            }
+            catch
+            {
+                
+            }
         }
 
         private async Task<List<Recipe>> GetStrictSuggestionsAsync(string[] normalizedIngredients, int max)

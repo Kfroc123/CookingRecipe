@@ -11,6 +11,7 @@ namespace CookingRecipe.Conntext
         }
 
         public DbSet<SearchHistory> SearchHistories => Set<SearchHistory>();
+        public DbSet<FavoriteRecipe> FavoriteRecipes => Set<FavoriteRecipe>();
         public DbSet<Recipe> Recipes { get; set; } = null!;
         public DbSet<Ingredient> Ingredients { get; set; } = null!;
         public DbSet<RecipeIngredient> RecipeIngredients { get; set; } = null!;
@@ -94,6 +95,19 @@ namespace CookingRecipe.Conntext
 
                 entity.Property(s => s.SearchDate)
                       .IsRequired();
+            });
+
+            modelBuilder.Entity<FavoriteRecipe>(entity =>
+            {
+                entity.HasKey(f => new { f.DeviceId, f.RecipeId });
+
+                entity.Property(f => f.DeviceId)
+                      .HasMaxLength(100);
+
+                entity.Property(f => f.CreatedAt)
+                      .IsRequired();
+
+                entity.HasIndex(f => f.DeviceId);
             });
         }
     }

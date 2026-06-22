@@ -53,7 +53,7 @@ dotnet user-secrets set "ConnectionStrings:Redis" "redis://username:password@hos
 
 Notes:
 - `Spoonacular:ApiKey` is required for live provider endpoints.
-- Redis is optional; if not configured, the app falls back to in-memory storage.
+- Redis is optional; if not configured or unavailable, the app falls back to SQLite-backed storage.
 
 ## Deploy API on Render
 
@@ -68,7 +68,7 @@ ConnectionStrings__Redis=redis://username:password@host:port
 Cors__AllowedOrigins__0=https://your-frontend-domain
 ```
 
-Redis is optional, but without it favorites and search history use temporary in-memory storage. SQLite also needs persistent storage if you want database data to survive restarts. Add a Render disk mounted at `/var/data`, then set:
+Redis is optional. If Redis is deleted or unavailable, favorites and search history fall back to SQLite. SQLite needs persistent storage if you want database data to survive restarts. Add a Render disk mounted at `/var/data`, then set:
 
 ```text
 ConnectionStrings__DefaultConnection=Data Source=/var/data/cookingrecipe.db

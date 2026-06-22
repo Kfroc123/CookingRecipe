@@ -69,11 +69,17 @@ namespace CookingRecipe.Controllers
                 HttpOnly = false,
                 IsEssential = true,
                 Expires = DateTimeOffset.UtcNow.AddYears(1),
-                SameSite = Request.IsHttps ? SameSiteMode.None : SameSiteMode.Lax,
-                Secure = Request.IsHttps
+                SameSite = IsSecureRequest() ? SameSiteMode.None : SameSiteMode.Lax,
+                Secure = IsSecureRequest()
             });
 
             return deviceId;
+        }
+
+        private bool IsSecureRequest()
+        {
+            return Request.IsHttps ||
+                string.Equals(Request.Headers["X-Forwarded-Proto"].FirstOrDefault(), "https", StringComparison.OrdinalIgnoreCase);
         }
     }
 }

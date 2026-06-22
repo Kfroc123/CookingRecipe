@@ -16,6 +16,7 @@ namespace CookingRecipe.Services
         
         Task AddFavoriteAsync(string deviceId, int recipeId);
         Task RemoveFavoriteAsync(string deviceId, int recipeId);
+        Task<List<int>> GetFavoriteIdsAsync(string deviceId);
         Task<List<Recipe>> GetFavoritesAsync(string deviceId);
 
         // search stored recipes (simple scan)
@@ -137,12 +138,30 @@ namespace CookingRecipe.Services
             }
         }
 
-        public async Task<List<Recipe>> GetFavoritesAsync(string deviceId)
+        public async Task<List<int>> GetFavoriteIdsAsync(string deviceId)
         {
             try
             {
                 var key = $"favorites:{deviceId}";
                 var members = await _db.SetMembersAsync(key).WaitAsync(RedisOpTimeout);
+                return members
+                    .Select(m => m.ToString())
+                    .Where(value => int.TryParse(value, out _))
+                    .Select(int.Parse)
+                    .ToList();
+            }
+            catch
+            {
+                return new List<int>();
+            }
+        }
+
+        public async Task<List<Recipe>> GetFavoritesAsync(string deviceId)
+        {
+            try
+            {
+                var favoriteIds = await GetFavoriteIdsAsync(deviceId);
+                var members = favoriteIds.Select(id => (RedisValue)id.ToString()).ToArray();
                 var result = new List<Recipe>(members.Length);
                 foreach (var m in members)
                 {

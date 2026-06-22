@@ -52,6 +52,19 @@ namespace CookingRecipe.Services
             return Task.FromResult(list);
         }
 
+        public Task<List<int>> GetFavoriteIdsAsync(string deviceId)
+        {
+            if (_favorites.TryGetValue(deviceId, out var set))
+            {
+                lock (set)
+                {
+                    return Task.FromResult(set.ToList());
+                }
+            }
+
+            return Task.FromResult(new List<int>());
+        }
+
         public Task<Recipe?> GetRecipeAsync(int id)
         {
             _recipes.TryGetValue(id, out var r);
