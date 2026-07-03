@@ -1,0 +1,20 @@
+Thesis: CookingRecipe helps users turn available ingredients into recipe options while prioritizing Nigerian meals.
+Audience: final class project evaluators.
+Arc: problem -> objectives -> system design -> technology -> live demo -> challenges -> learning.
+
+Slide 1: CookingRecipe turns available ingredients into meal ideas.
+Proof object: product promise and mini architecture strip.
+Slide 2: The project solves the everyday "what can I cook?" problem.
+Proof object: three user pain points.
+Slide 3: The objectives define a useful recipe recommendation backend.
+Proof object: five objective ladder.
+Slide 4: The backend searches local Nigerian recipes before external recipes.
+Proof object: request-to-response workflow.
+Slide 5: The stack combines a React frontend with an ASP.NET Core API.
+Proof object: stack map.
+Slide 6: The demo should prove health, search, details, favorites, and history.
+Proof object: live demo checklist.
+Slide 7: The main challenges were API reliability, CORS, and persistence.
+Proof object: challenge/response table.
+Slide 8: The project showed how real backend systems connect data, APIs, and users.
+Proof object: learning and improvement summary.
