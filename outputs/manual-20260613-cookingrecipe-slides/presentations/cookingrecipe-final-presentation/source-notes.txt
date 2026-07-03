@@ -1,0 +1,11 @@
+Sources used:
+- User-provided presentation script in chat.
+- Local README and backend files already inspected for project facts.
+
+Project facts:
+- CookingRecipe is an ASP.NET Core Web API recipe recommendation project.
+- It uses a Nigerian recipe dataset, Spoonacular API, SQLite, optional Redis, Swagger, and deployment support.
+- Frontend listed by the user/project as React + Vite.
+
+Identity assets:
+- No official external logos embedded.

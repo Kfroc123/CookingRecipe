@@ -1,0 +1,9 @@
+Slide size: 1280x720.
+Background: deep green ink (#10251F) with warm cream panels (#F6F1E7).
+Typography: Aptos Display for titles, Aptos for body text, Aptos Mono for endpoints.
+Colors: deep green for foundation, cream for readable content, leaf green (#3A8F62) for success/system flow, tomato red (#E76F51) for challenge accents, gold (#F2C94C) for highlights.
+Diagrams: rounded-light panels with dark text, direct labels, left-to-right reading order.
+Footer/page marker: small muted text in lower-right.
+Kicker style: small uppercase label above title in gold.
+Layout families: cover architecture strip, pain point columns, objective ladder, workflow diagram, tech stack bands, demo checklist, challenge table, closing summary.
+Banned motifs: fake logos, decorative blobs, dense paragraphs, repeated card-only slides.

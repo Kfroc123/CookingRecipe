@@ -1,0 +1,8 @@
+1. Cover with architecture strip.
+2. Problem statement with three pain points.
+3. Project objectives as a vertical ladder.
+4. System overview as an end-to-end workflow.
+5. Technology used as a stack map.
+6. Live demonstration as endpoint checklist.
+7. Challenges as challenge-to-solution table.
+8. Conclusion and Q&A as closing summary.
