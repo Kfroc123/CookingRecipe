@@ -64,6 +64,10 @@ namespace cookingrecipe
             {
                 client.Timeout = TimeSpan.FromSeconds(30);
             });
+            builder.Services.AddHttpClient<IYouTubeService, YouTubeService>(client =>
+            {
+                client.Timeout = TimeSpan.FromSeconds(15);
+            });
             builder.Services.AddSingleton<INigerianRecipeDatasetService, NigerianRecipeDatasetService>();
 
             builder.Services.AddControllers();
