@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { FaSearch, FaTimes } from "react-icons/fa";
 import RecipeCard from "../Components/RecipeCard";
+import YouTubeTutorials from "../Components/YouTubeTutorials";
 import {
   addFavorite,
   getAll,
@@ -256,6 +257,18 @@ function Home() {
               </p>
             </div>
           </div>
+
+          <YouTubeTutorials
+            query={searchQuery}
+            max={6}
+            heading={searchQuery ? `Tutorials for "${searchQuery}"` : "Food tutorial videos"}
+            description={
+              searchQuery
+                ? "Watch video guides that match your recipe search."
+                : "Browse cooking tutorials while you choose what to make."
+            }
+            emptyMessage="No food tutorials found for this search yet."
+          />
 
           {error ? (
             <div className="empty-state">{error}</div>

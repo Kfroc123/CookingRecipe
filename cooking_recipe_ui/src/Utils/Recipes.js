@@ -1,4 +1,12 @@
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5209";
+const normalizeApiBaseUrl = (value) => {
+  return value?.trim().replace(/\/+$/, "") || "";
+};
+
+const API_BASE_URL =
+  normalizeApiBaseUrl(import.meta.env.VITE_API_BASE_URL) ||
+  (import.meta.env.DEV ? "http://localhost:5209" : "");
+
+const buildApiUrl = (path) => `${API_BASE_URL}${path}`;
 
 const handleResponse = async (response) => {
   if (!response.ok) {
@@ -27,7 +35,7 @@ export const searchRecipes = async (query, max = 24, options = {}) => {
     ingredients: query,
     max: String(max),
   });
-  const response = await fetch(`${API_BASE_URL}/api/recipes/search?${params.toString()}`, {
+  const response = await fetch(buildApiUrl(`/api/recipes/search?${params.toString()}`), {
     credentials: "include",
     signal: options.signal,
   });
@@ -35,14 +43,14 @@ export const searchRecipes = async (query, max = 24, options = {}) => {
 };
 
 export const getAll = async () => {
-  const response = await fetch(`${API_BASE_URL}/api/recipes`, {
+  const response = await fetch(buildApiUrl("/api/recipes"), {
     credentials: "include",
   });
   return handleResponse(response);
 };
 
 export const getById = async (id) => {
-  const response = await fetch(`${API_BASE_URL}/api/recipes/${id}`, {
+  const response = await fetch(buildApiUrl(`/api/recipes/${id}`), {
     credentials: "include",
   });
   return handleResponse(response);
@@ -53,7 +61,7 @@ export const searchYouTubeVideos = async (query, max = 4, options = {}) => {
     query,
     max: String(max),
   });
-  const response = await fetch(`${API_BASE_URL}/api/youtube/search?${params.toString()}`, {
+  const response = await fetch(buildApiUrl(`/api/youtube/search?${params.toString()}`), {
     credentials: "include",
     signal: options.signal,
   });
@@ -61,14 +69,14 @@ export const searchYouTubeVideos = async (query, max = 4, options = {}) => {
 };
 
 export const getFavorites = async () => {
-  const response = await fetch(`${API_BASE_URL}/api/recipes/favorites`, {
+  const response = await fetch(buildApiUrl("/api/recipes/favorites"), {
     credentials: "include",
   });
   return handleResponse(response);
 };
 
 export const addFavorite = async (id) => {
-  const response = await fetch(`${API_BASE_URL}/api/recipes/${id}/favorite`, {
+  const response = await fetch(buildApiUrl(`/api/recipes/${id}/favorite`), {
     method: "POST",
     credentials: "include",
   });
@@ -76,7 +84,7 @@ export const addFavorite = async (id) => {
 };
 
 export const removeFavorite = async (id) => {
-  const response = await fetch(`${API_BASE_URL}/api/recipes/${id}/favorite`, {
+  const response = await fetch(buildApiUrl(`/api/recipes/${id}/favorite`), {
     method: "DELETE",
     credentials: "include",
   });
