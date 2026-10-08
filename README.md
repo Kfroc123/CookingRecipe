@@ -104,3 +104,59 @@ Frontend:
 cd cooking_recipe_ui
 npm run build
 ```
+
+## Deploy
+
+Production layout:
+
+- Backend: Render (Docker web service from `CookingRecipe`)
+- Frontend: Vercel (Vite app from `cooking_recipe_ui`)
+- The Vercel `/api` serverless proxy forwards requests to Render. Leave `VITE_API_BASE_URL` unset on Vercel so the browser calls same-origin `/api/...` (needed for the `deviceId` cookie / favorites).
+
+`render.yaml` at the repo root describes the API service. `cooking_recipe_ui/vercel.json` is the Vercel SPA config (rewrites skip `/api`).
+
+### 1. Deploy the API on Render
+
+1. Push this repository to GitHub.
+2. In [Render](https://dashboard.render.com), create a Blueprint from the repo, or a **Web Service** with:
+   - Root directory: `CookingRecipe`
+   - Runtime: Docker
+   - Health check path: `/health`
+3. Set environment variables:
+
+| Variable | Required | Notes |
+| --- | --- | --- |
+| `ASPNETCORE_ENVIRONMENT` | Yes | `Production` (already in `render.yaml`) |
+| `Spoonacular__ApiKey` | No | Live Spoonacular search; otherwise the Nigerian dataset is used |
+| `YouTube__ApiKey` | No | YouTube tutorials |
+| `Cors__AllowedOrigins__0` | No | Your Vercel URL, e.g. `https://your-app.vercel.app` (backup; the UI proxy is server-to-server) |
+| `ConnectionStrings__Redis` | No | Favorites persist across deploys. Without Redis, SQLite lives in temp storage and **resets on each Render restart** |
+
+4. After the deploy finishes, confirm:
+
+```text
+https://<your-service>.onrender.com/health
+https://<your-service>.onrender.com/swagger
+```
+
+The first request on a free Render instance can take a minute while the service wakes up.
+
+### 2. Deploy the UI on Vercel
+
+1. In [Vercel](https://vercel.com), import the same GitHub repository.
+2. Set **Root Directory** to `cooking_recipe_ui`.
+3. Framework: Vite. Build command: `npm run build`. Output: `dist`.
+4. Environment variables:
+
+| Variable | Required | Notes |
+| --- | --- | --- |
+| `BACKEND_API_BASE_URL` | Yes | Render URL, e.g. `https://<your-service>.onrender.com` |
+| `VITE_API_BASE_URL` | Do not set | Empty means the browser uses `/api` on Vercel |
+
+5. Deploy. If you add or change `BACKEND_API_BASE_URL` after the first deploy, redeploy so the proxy picks it up.
+
+### 3. Verify
+
+1. Open the Vercel URL: home, search, recipe detail, YouTube section, favorites.
+2. In the browser Network tab, API calls should go to `/api/...` on the Vercel host, not `localhost`.
+3. `https://<your-service>.onrender.com/health` should return OK.
