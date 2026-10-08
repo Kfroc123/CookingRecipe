@@ -1,105 +1,106 @@
-# CookingRecipe API
+# Cooking Recipe App
 
-ASP.NET Core Web API for recipe search, Spoonacular integration, favorites, and search history.
+This repository contains two projects:
+
+- `CookingRecipe` - ASP.NET Core Web API backend
+- `cooking_recipe_ui` - React + Vite frontend
+
+The folders are kept inside this repository as normal project folders.
 
 ## Requirements
 
-- .NET SDK 9.0+
+- .NET SDK 9.0 or newer
+- Node.js and npm
 
-## Run
+## Run the Backend
+
+Open a terminal in the backend folder:
 
 ```powershell
+cd CookingRecipe
 dotnet restore
 dotnet run --project CookingRecipe.csproj
 ```
 
-## Build
+The API runs at:
 
-```powershell
-dotnet build cookingrecipe.sln
+```text
+http://localhost:5209
 ```
 
-## Database (EF Core + SQLite)
+Swagger is available at:
 
-Create migration:
-
-```powershell
-dotnet tool run dotnet-ef migrations add InitialCreate --context CookingRecipeContext --output-dir Migrations
+```text
+http://localhost:5209/swagger
 ```
 
-Apply migrations:
+## Backend Configuration
 
-```powershell
-dotnet tool run dotnet-ef database update --context CookingRecipeContext
-```
+The backend can run with its local Nigerian recipe dataset. Live external services need API keys.
 
-The app also runs pending migrations automatically at startup.
-
-## Tests
-
-```powershell
-dotnet test cookingrecipe.sln
-```
-
-## Configure Secrets (Required for live Spoonacular search)
-
-Use user-secrets in development:
+For development, configure secrets from inside the `CookingRecipe` folder:
 
 ```powershell
 dotnet user-secrets init
 dotnet user-secrets set "Spoonacular:ApiKey" "YOUR_SPOONACULAR_KEY"
+dotnet user-secrets set "YouTube:ApiKey" "YOUR_YOUTUBE_API_KEY"
+```
+
+Redis is optional. If Redis is not configured or unavailable, the app falls back to SQLite-backed storage.
+
+Optional Redis configuration:
+
+```powershell
 dotnet user-secrets set "ConnectionStrings:Redis" "redis://username:password@host:port"
 ```
 
-Notes:
-- `Spoonacular:ApiKey` is required for live provider endpoints.
-- Redis is optional; if not configured or unavailable, the app falls back to SQLite-backed storage.
+## Run the Frontend
 
-## Deploy API on Render
+Open another terminal in the frontend folder:
 
-Deploy the backend as a Render Web Service using the Docker runtime. The Dockerfile binds to Render's `PORT` value and starts `CookingRecipe.dll`.
-
-Set these environment variables in Render:
-
-```text
-ASPNETCORE_ENVIRONMENT=Production
-Spoonacular__ApiKey=YOUR_SPOONACULAR_KEY
-ConnectionStrings__Redis=redis://username:password@host:port
-Cors__AllowedOrigins__0=https://your-frontend-domain
+```powershell
+cd cooking_recipe_ui
+npm install
+npm run dev
 ```
 
-Redis is optional. If Redis is deleted or unavailable, favorites and search history fall back to SQLite. SQLite needs persistent storage if you want database data to survive restarts. Add a Render disk mounted at `/var/data`, then set:
+The frontend runs at:
 
 ```text
-ConnectionStrings__DefaultConnection=Data Source=/var/data/cookingrecipe.db
+http://localhost:5173
 ```
 
-If you deploy the React frontend separately, set:
+The frontend uses this API base URL by default:
 
 ```text
-VITE_API_BASE_URL=https://your-api-service.onrender.com
+http://localhost:5209
 ```
 
-## API Endpoints
+You can also set it explicitly by creating `cooking_recipe_ui/.env`:
 
-`Recipes`
-- `GET /api/recipes/search?ingredients=rice,beans&max=10`
-- `POST /api/recipes/suggest-by-ingredients`
-- `GET /api/recipes`
-- `GET /api/recipes/{id}`
-- `GET /api/recipes/stored/search?ingredients=tomato,onion&max=50`
-- `POST /api/recipes/{id}/favorite`
-- `DELETE /api/recipes/{id}/favorite`
-- `GET /api/recipes/favorites`
+```text
+VITE_API_BASE_URL=http://localhost:5209
+```
 
-`Search History`
-- `GET /api/searchhistory`
-- `POST /api/searchhistory`
+## Typical Local Workflow
 
-`Health`
-- `GET /health`
+1. Start the backend from `CookingRecipe`.
+2. Start the frontend from `cooking_recipe_ui`.
+3. Open `http://localhost:5173` in your browser.
+4. Use `http://localhost:5209/swagger` to inspect and test API endpoints.
 
-## Notes
+## Useful Commands
 
-- Swagger UI is enabled at startup (`/swagger`).
-- App root (`/`) redirects to Swagger.
+Backend:
+
+```powershell
+cd CookingRecipe
+dotnet build cookingrecipe.sln
+```
+
+Frontend:
+
+```powershell
+cd cooking_recipe_ui
+npm run build
+```
